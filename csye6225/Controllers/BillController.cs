@@ -23,8 +23,8 @@ namespace csye6225.Controllers
         [Route("v1/bill")]   
         public async Task<IActionResult> Create([FromBody]BillCreateRequest req) 
         {    
-            req.owner_id = this.User.FindFirstValue(ClaimTypes.NameIdentifier);
-            var bill = await _billService.Create(req);
+            var ownerId = this.User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var bill = await _billService.Create(ownerId, req);
 
             if (bill == null)
                 return BadRequest(new { message = "Network error. Bill could not be created." });
@@ -72,6 +72,21 @@ namespace csye6225.Controllers
                 return NotFound(new { message = "Bill not found." });
 
             return Ok(bill);
+        }
+
+
+        [Authorize]
+        [Route("v1/bill")] 
+        [HttpPut] 
+        public async Task<IActionResult> Update(string id, [FromBody]BillUpdateRequest req) 
+        {    
+            var ownerId = this.User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var user = await _billService.Update(ownerId, id, req);
+
+            if (user == null)
+                return BadRequest(new { message = "Bill not found." });
+
+            return NoContent();
         }
     }
 }
