@@ -31,7 +31,7 @@ namespace csye6225.Services
 
         public async Task<AccountResponse> Authenticate(string email, string password)
         {
-            var user = await Task.Run(() => _context.Account.First(x => x.email_address == email));
+            var user = await Task.Run(() => _context.Account.FirstOrDefault(x => x.email_address == email));
 
             if (user == null)
                 return null;

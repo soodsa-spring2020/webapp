@@ -33,7 +33,8 @@ namespace csye6225.Controllers
         }
 
         [Authorize]
-        [Route("v1/bills")]  
+        [Route("v1/bills")] 
+        [HttpGet] 
         public async Task<IActionResult> Bills() 
         {    
             var ownerId = this.User.FindFirstValue(ClaimTypes.NameIdentifier);
@@ -46,11 +47,11 @@ namespace csye6225.Controllers
         }
 
         [Authorize]
-        [Route("v1/bill")]  
+        [Route("v1/bill")] 
+        [HttpDelete] 
         public async Task<IActionResult> Delete(string id) 
         {    
             var ownerId = this.User.FindFirstValue(ClaimTypes.NameIdentifier);
-
             var isDeleted = await _billService.DeleteUserBill(ownerId, id);
 
             if (!isDeleted)
@@ -59,6 +60,18 @@ namespace csye6225.Controllers
             return NoContent();
         }
 
+        [Authorize]
+        [Route("v1/bill")] 
+        [HttpGet] 
+        public async Task<IActionResult> Get(string id) 
+        {    
+            var ownerId = this.User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var bill = await _billService.GetBill(ownerId, id);
 
+            if (bill == null)
+                return NotFound(new { message = "Bill not found." });
+
+            return Ok(bill);
+        }
     }
 }

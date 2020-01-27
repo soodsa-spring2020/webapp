@@ -13,6 +13,7 @@ namespace csye6225.Services
         Task<BillResponse> Create(BillCreateRequest req);
         Task<IEnumerable<BillResponse>> GetUserBills(string ownerId);
         Task<Boolean> DeleteUserBill(string ownerId, string billId);
+        Task<BillResponse> GetBill(string ownerId, string billId);
     }
 
     public class BillService : IBillService
@@ -72,6 +73,12 @@ namespace csye6225.Services
             }
 
             return true;
+        }
+
+        public async Task<BillResponse> GetBill(string ownerId, string billId)
+        {
+            var bill = await Task.Run(() => _context.Bill.FirstOrDefault(x => x.owner_id.ToString() == ownerId && x.id.ToString() == billId));
+            return _mapper.Map<BillResponse>(bill);
         }
     }
 }
