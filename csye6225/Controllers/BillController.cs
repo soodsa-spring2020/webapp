@@ -8,7 +8,6 @@ using Microsoft.AspNetCore.Mvc;
 namespace csye6225.Controllers
 {
     [ApiController]
-    [Route("v1/[controller]")]   
     public class BillController : ControllerBase
     {
         
@@ -21,6 +20,7 @@ namespace csye6225.Controllers
 
         [Authorize]
         [HttpPost] 
+        [Route("v1/bill")]   
         public async Task<IActionResult> Create([FromBody]BillCreateRequest req) 
         {    
             req.owner_id = this.User.FindFirstValue(ClaimTypes.NameIdentifier);
@@ -30,6 +30,19 @@ namespace csye6225.Controllers
                 return BadRequest(new { message = "Network error. Bill could not be created." });
 
             return Created(string.Empty, bill);
+        }
+
+        [Authorize]
+        [Route("v1/bills")]  
+        public async Task<IActionResult> Bills() 
+        {    
+            var ownerId = this.User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var bills = await _billService.GetUserBills(ownerId);
+
+            if (bills == null)
+                return BadRequest(new { message = "Network error. Bills could not be found." });
+
+            return Ok(bills);
         }
 
 
