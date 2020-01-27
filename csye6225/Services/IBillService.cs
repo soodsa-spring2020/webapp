@@ -12,6 +12,7 @@ namespace csye6225.Services
     {
         Task<BillResponse> Create(BillCreateRequest req);
         Task<IEnumerable<BillResponse>> GetUserBills(string ownerId);
+        Task<Boolean> DeleteUserBill(string ownerId, string billId);
     }
 
     public class BillService : IBillService
@@ -54,6 +55,23 @@ namespace csye6225.Services
         {
             var bills = await Task.Run(() => _context.Bill.Where(x => x.owner_id.ToString() == ownerId).OrderByDescending(o => o.updated_ts));
             return _mapper.Map<IEnumerable<BillResponse>>(bills);
+        }
+
+        public async Task<bool> DeleteUserBill(string ownerId, string billId)
+        {
+            var bill = await Task.Run(() => _context.Bill.FirstOrDefault(x => x.owner_id.ToString() == ownerId && x.id.ToString() == billId));
+
+            if(bill == null) {
+                return false;
+            }
+
+            using (var _context = new dbContext()) 
+            {
+                _context.Bill.Remove(bill); 
+                await _context.SaveChangesAsync();
+            }
+
+            return true;
         }
     }
 }

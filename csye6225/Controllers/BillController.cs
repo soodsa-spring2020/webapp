@@ -45,6 +45,20 @@ namespace csye6225.Controllers
             return Ok(bills);
         }
 
+        [Authorize]
+        [Route("v1/bill")]  
+        public async Task<IActionResult> Delete(string id) 
+        {    
+            var ownerId = this.User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            var isDeleted = await _billService.DeleteUserBill(ownerId, id);
+
+            if (!isDeleted)
+                return NotFound(new { message = "Bill not found." });
+
+            return NoContent();
+        }
+
 
     }
 }
