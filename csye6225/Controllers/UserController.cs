@@ -49,7 +49,7 @@ namespace csye6225.Controllers
             var user = await _userService.Create(req);
 
             if (user == null)
-                return BadRequest(new { message = "Network error. User could not be created.." });
+                return BadRequest(new { message = "Network error. User could not be created." });
 
             return Created(string.Empty, user);
         }
