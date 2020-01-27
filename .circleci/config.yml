@@ -1,0 +1,73 @@
+version: 2.1
+
+jobs:
+  build:
+    description: Build application
+    docker:
+      - image: mcr.microsoft.com/dotnet/core/sdk:3.0
+        environment:
+          DOTNET_SKIP_FIRST_TIME_EXPERIENCE: 1
+          DOTNET_CLI_TELEMETRY_OPTOUT: 1
+      - image: circleci/postgres:9.6.5-alpine-ram
+        environment:
+          POSTGRES_USER: ubuntu
+          POSTGRES_DB: circle_test
+          POSTGRES_PASSWORD: ""
+    steps:
+      - checkout
+      - run:
+          name: "Build Application"
+          command: dotnet build
+      - run:
+          name: "Setup Entity Framework"
+          command: dotnet tool install --global dotnet-ef --version 3.0.0
+      - run:
+          name: "Add Migrations"
+          command: /root/.dotnet/tools/dotnet-ef migrations add initial --project=csye6225
+      - run:
+          name: "Update Database"
+          command: /root/.dotnet/tools/dotnet-ef database update --project=csye6225
+      - run:
+          name: "Run Tests"
+          command: dotnet test
+  prcheck:
+    description: Pull Request Check
+    docker:
+      - image: mcr.microsoft.com/dotnet/core/sdk:3.0
+        environment:
+          DOTNET_SKIP_FIRST_TIME_EXPERIENCE: 1
+          DOTNET_CLI_TELEMETRY_OPTOUT: 1
+      - image: circleci/postgres:9.6.5-alpine-ram
+        environment:
+          POSTGRES_USER: ubuntu
+          POSTGRES_DB: circle_test
+          POSTGRES_PASSWORD: ""
+    steps:
+      - checkout
+      - run:
+          name: "Build Application"
+          command: dotnet build
+      - run:
+          name: "Setup Entity Framework"
+          command: dotnet tool install --global dotnet-ef --version 3.0.0
+      - run:
+          name: "Add Migrations"
+          command: /root/.dotnet/tools/dotnet-ef migrations add initial --project=csye6225
+      - run:
+          name: "Update Database"
+          command: /root/.dotnet/tools/dotnet-ef database update --project=csye6225
+      - run:
+          name: "Run Tests"
+          command: dotnet test
+workflows:
+  version: 2
+  build_and_test:
+    jobs:
+      - build
+          filters:
+            branches:
+              only:
+                - master
+  pr-check:
+    jobs:
+      - prcheck
