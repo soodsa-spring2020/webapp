@@ -11,9 +11,9 @@ namespace csye6225.Models
 
         public dbContext(DbContextOptions<dbContext> options) : base(options) { }     
 
-        public DbSet<AccountModel> Account { get; set; }   
+        public virtual DbSet<AccountModel> Account { get; set; }   
 
-        public DbSet<BillModel> Bill { get; set; }
+        public virtual DbSet<BillModel> Bill { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
