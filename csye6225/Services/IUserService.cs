@@ -20,7 +20,7 @@ namespace csye6225.Services
 
     public class UserService : IUserService
     {
-        private readonly dbContext _context;
+        private dbContext _context;
         private readonly IMapper _mapper;
 
         public UserService(dbContext context, IMapper mapper) 
@@ -72,24 +72,31 @@ namespace csye6225.Services
                 account_updated = DateTime.Now
             };
 
-            _context.Account.Add(user); 
-            await _context.SaveChangesAsync();
+            using(_context = new dbContext())
+            {
+                _context.Account.Add(user); 
+                await _context.SaveChangesAsync();
+            }
             return _mapper.Map<AccountResponse>(user.WithoutPassword());
         }
 
         public async Task<AccountResponse> Update(string id, AccountUpdateRequest req)
         {
-            var user = await Task.Run(() => _context.Account.FirstOrDefault(x => x.id.ToString() == id));
+            using(_context = new dbContext())
+            {
+                var user = await Task.Run(() => _context.Account.FirstOrDefault(x => x.id.ToString() == id));
 
-            if (user == null)
+                if (user == null)
                 return null;
 
-            user.first_name = req.first_name;
-            user.last_name = req.last_name;
-            user.password = BCrypt.Net.BCrypt.HashPassword(req.password);
-            user.account_updated = DateTime.Now;
-            await _context.SaveChangesAsync();
-            return _mapper.Map<AccountResponse>(user.WithoutPassword());
+                user.first_name = req.first_name;
+                user.last_name = req.last_name;
+                user.password = BCrypt.Net.BCrypt.HashPassword(req.password);
+                user.account_updated = DateTime.Now;
+
+                await _context.SaveChangesAsync();
+                return _mapper.Map<AccountResponse>(user.WithoutPassword());
+            }
         }
 
         public async Task<Boolean> CheckIfUserExists(string email)
