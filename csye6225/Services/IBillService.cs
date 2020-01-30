@@ -15,6 +15,7 @@ namespace csye6225.Services
         Task<Boolean> DeleteUserBill(string ownerId, string billId);
         Task<BillResponse> GetBill(string ownerId, string billId);
         Task<BillResponse> Update(string ownerId, string billId, BillUpdateRequest req);
+        Boolean CheckIfCategoriesUnique(List<string> categories);
     }
 
     public class BillService : IBillService
@@ -101,6 +102,14 @@ namespace csye6225.Services
                 await _context.SaveChangesAsync();
                 return _mapper.Map<BillResponse>(bill);
             }
+        }
+
+        public Boolean CheckIfCategoriesUnique(List<string> categories)
+        {
+            if(categories.Select(s => s.Trim()).Distinct().Count() != categories.Select(s => s.Trim()).Count()){
+                return false;
+            }
+            return true;
         }
     }
 }
