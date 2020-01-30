@@ -20,19 +20,28 @@ using System.Net.Http.Headers;
 using System.Net;
 using System.Text;
 using Newtonsoft.Json;
+using System.Diagnostics;
+using Xunit.Abstractions;
 
 namespace UnitTests
 {
     public class UserTests
     {
+        ITestOutputHelper _console;
+
+        public UserTests(ITestOutputHelper console)
+        {
+            this._console = console;
+        }
+        
         [Fact]
         public async Task CreateUsers_UnitTest()
         { 
             Random r = new Random();
             var req = new AccountCreateRequest 
             { 
-                first_name = "John",
-                last_name = "Smith",
+                first_name = "Test 1",
+                last_name = "run",
                 password = "Admin@123", 
                 email_address = "john.smith" + r.Next(1, 9999)  +"@example.com"
             };
@@ -40,8 +49,8 @@ namespace UnitTests
            var data = new List<AccountModel>
             {
                 new AccountModel { 
-                first_name = "1John",
-                last_name = "1Smith",
+                first_name = "John",
+                last_name = "Smith",
                 email_address = "john.smith" + r.Next(1, 9999)  +"@example.com"
             }}.AsQueryable();
 
@@ -62,22 +71,24 @@ namespace UnitTests
             var controller = new UserController(service);
             var actionResult = await controller.Create(req);
             
-            Console.WriteLine("CreateUsers_UnitTest {0}", actionResult);
+            _console.WriteLine("CreateUsers_UnitTest {0}", actionResult);
             Assert.IsType<CreatedResult>(actionResult); 
         }
 
         [Fact]
         public async Task CreateUser_IntiTest()
         {
-            var _client = new TestClientProvider().Client;
+            var webBuilder = new WebHostBuilder().UseStartup<Startup>();
+            var server = new TestServer(webBuilder);
+            var _client = server.CreateClient();
             //client.DefaultRequestHeaders.Authorization = 
              //new AuthenticationHeaderValue("Basic", "c2FqYWwuc29vZDFAZ21haWwuY29tOkFkbWluQDEyMw==");
             var postRequest = new HttpRequestMessage(HttpMethod.Post, "/v1/user");
             Random r = new Random();
             var req = new Dictionary<string, string>
             {
-                { "first_name", "John" },
-                { "last_name", "Smith" },
+                { "first_name", "Test 2" },
+                { "last_name", "run" },
                 { "password", "Admin@123" },
                 { "email_address", "john.smith" + r.Next(1, 9999)  +"@example.com" }
             };
@@ -86,31 +97,9 @@ namespace UnitTests
             var response = await _client.SendAsync(postRequest);
             response.EnsureSuccessStatusCode();
             
-            Console.WriteLine("CreateUser_IntiTest {0}", response.StatusCode);
+            //_console.WriteLine(Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT"));
+            _console.WriteLine("CreateUser_IntiTest {0}", response.StatusCode);
             Assert.Equal(HttpStatusCode.Created, response.StatusCode); 
-        }
-    }
-
-    public class TestClientProvider
-    {
-        public HttpClient Client { get; private set; }
-
-        public TestClientProvider()
-        {   
-            IConfigurationRoot configuration = new ConfigurationBuilder()
-                .SetBasePath(AppContext.BaseDirectory)
-                .AddJsonFile("appsettings.json")
-                .Build();
-
-            string curDir = Directory.GetCurrentDirectory();
-
-            var webBuilder = new WebHostBuilder()
-            .UseContentRoot(curDir).UseConfiguration(configuration)
-            .UseStartup<Startup>();
-
-            var server = new TestServer(webBuilder);
-
-            Client = server.CreateClient();
         }
     }
 }

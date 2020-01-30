@@ -1,3 +1,4 @@
+using System;
 using System.IO;
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
@@ -19,11 +20,16 @@ namespace csye6225.Models
         {
             if (!optionsBuilder.IsConfigured)
             {
-                IConfigurationRoot configuration = new ConfigurationBuilder()
-                .SetBasePath(Directory.GetCurrentDirectory())
-                .AddJsonFile("appsettings.json")
-                .Build();
-                var connectionString = configuration.GetConnectionString("LocalDBConnection");
+               var env = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
+            
+                var configuration = new ConfigurationBuilder()
+                    .SetBasePath(AppContext.BaseDirectory)
+                    .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+                    .AddJsonFile($"appsettings.{env}.json", optional: true)
+                    .AddEnvironmentVariables()
+                    .Build();
+
+                var connectionString = configuration.GetConnectionString("DBConnection");
                 optionsBuilder.UseNpgsql(connectionString);
             }
         }
