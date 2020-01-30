@@ -8,12 +8,12 @@ jobs:
         environment:
           DOTNET_SKIP_FIRST_TIME_EXPERIENCE: 1
           DOTNET_CLI_TELEMETRY_OPTOUT: 1
-          # ASPNETCORE_ENVIRONMENT: CircleCI
+          ASPNETCORE_ENVIRONMENT: CircleCI
       - image: circleci/postgres:9.6.5-alpine-ram
-        environment:
-          POSTGRES_USER: ubuntu
-          POSTGRES_DB: circle_test
-          POSTGRES_PASSWORD: ""
+        # environment:
+        #   POSTGRES_USER: ubuntu
+        #   POSTGRES_DB: circle_test
+        #   POSTGRES_PASSWORD: ""
     steps:
       - checkout
       - run:
@@ -38,11 +38,12 @@ jobs:
         environment:
           DOTNET_SKIP_FIRST_TIME_EXPERIENCE: 1
           DOTNET_CLI_TELEMETRY_OPTOUT: 1
+          ASPNETCORE_ENVIRONMENT: CircleCI
       - image: circleci/postgres:9.6.5-alpine-ram
-        environment:
-          POSTGRES_USER: ubuntu
-          POSTGRES_DB: circle_test
-          POSTGRES_PASSWORD: ""
+        # environment:
+        #   POSTGRES_USER: ubuntu
+        #   POSTGRES_DB: circle_test
+        #   POSTGRES_PASSWORD: ""
     steps:
       - checkout
       - run:
