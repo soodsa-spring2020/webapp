@@ -27,7 +27,7 @@ jobs:
       - run:
           name: "Run Tests"
           command: dotnet test
-  prcheck:
+  pr_check:
     description: Pull Request Check
     docker:
       - image: mcr.microsoft.com/dotnet/core/sdk:3.0
@@ -55,7 +55,7 @@ jobs:
           command: dotnet test
 workflows:
   version: 2
-  build_and_test:
+  build_deploy:
     jobs:
       - build:
           filters:
@@ -64,4 +64,4 @@ workflows:
                 - master
   pr-check:
     jobs:
-      - prcheck
+      - pr_check
