@@ -17,6 +17,7 @@ namespace csye6225.Models
 
         [Required]
         [DataType(DataType.Date)]
+        [BillDueDateValidation(BillDate = "bill_date")]
         public DateTime? due_date { get; set; }
 
         [Required]
@@ -24,6 +25,7 @@ namespace csye6225.Models
         public Double amount_due { get; set; } 
         
         [Required]
+        [UniqueCategoryValidation]
         public List<string> categories { get; set; } 
 
         [Required]   
@@ -42,6 +44,7 @@ namespace csye6225.Models
 
         [Required]
         [DataType(DataType.Date)]
+        [BillDueDateValidation(BillDate = "bill_date")]
         public DateTime? due_date { get; set; }
 
         [Required]
@@ -49,6 +52,7 @@ namespace csye6225.Models
         public Double amount_due { get; set; } 
 
         [Required]
+        [UniqueCategoryValidation]
         public List<string> categories { get; set; }  
 
         [Required]   

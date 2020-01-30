@@ -24,11 +24,6 @@ namespace csye6225.Controllers
         public async Task<IActionResult> Create([FromBody]BillCreateRequest req) 
         {    
             var ownerId = this.User.FindFirstValue(ClaimTypes.NameIdentifier);
-
-            if(!_billService.CheckIfCategoriesUnique(req.categories)) {
-                return BadRequest(new { message = "Bill should have unique items in categories." });
-            }
-
             var bill = await _billService.Create(ownerId, req);
 
             if (bill == null)
