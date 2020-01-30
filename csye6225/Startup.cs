@@ -10,14 +10,21 @@ using csye6225.Services;
 using csye6225.Helpers;
 using csye6225.Filters;
 using AutoMapper;
+using System;
 
 namespace csye6225
 {
     public class Startup
     {
-        public Startup(IConfiguration configuration)
+        public Startup(IWebHostEnvironment env)
         {
-            Configuration = configuration;
+            var envName = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
+            var builder = new ConfigurationBuilder()
+                .SetBasePath(env.ContentRootPath)
+                .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+                .AddJsonFile($"appsettings.{envName}.json", optional: true)
+                .AddEnvironmentVariables();
+            Configuration = builder.Build();
         }
 
         public IConfiguration Configuration { get; }
@@ -33,9 +40,9 @@ namespace csye6225
             //services.AddScoped<IPasswordHasher<ApplicationUser>, BCryptPasswordHasher<ApplicationUser>>();
 
             //services.AddIdentity<ApplicationUser, IdentityRole>();
-
+            var connectionString = Configuration.GetConnectionString("DBConnection");
             services.AddDbContext<dbContext> (
-                options => options.UseNpgsql(Configuration.GetConnectionString("LocalDBConnection"))
+                options => options.UseNpgsql(connectionString)
             );
             
             //services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Latest);
