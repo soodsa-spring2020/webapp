@@ -17,7 +17,7 @@ namespace csye6225
     public class Startup
     {
         public Startup(IWebHostEnvironment env)
-        {
+        { 
             var envName = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
             var builder = new ConfigurationBuilder()
                 .SetBasePath(env.ContentRootPath)
