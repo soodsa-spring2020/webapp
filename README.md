@@ -1,6 +1,6 @@
 # Bill Tracking - CSYE 6225
 
-A .NET core 3.0 backend web application for tracking bills for a user. A user can create, update, view and delete bills.
+ .A .NET core 3.0 backend web application for tracking bills for a user. A user can create, update, view and delete bills.
 
 ## Getting Started
 
