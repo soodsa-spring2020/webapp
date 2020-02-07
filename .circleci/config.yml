@@ -19,8 +19,17 @@ jobs:
           name: "Setup Entity Framework"
           command: dotnet tool install --global dotnet-ef --version 3.0.0
       - run:
+          name: "Setup Postgres Client"
+          command: apt-get update && apt-get install postgresql-client
+      - run:
+          name: "Log Into Postgres"
+          command: psql -p 5432 -U postgres -h 127.0.0.1  
+      - run:
+          name: "Create a new postgres user, DB"
+          command: CREATE USER sajal WITH PASSWORD 'sajal'; && CREATE DATABASE webappdb; && \q
+      - run:
           name: "Add Migrations"
-          command: /root/.dotnet/tools/dotnet-ef migrations add initial --project=csye6225
+          command: /root/.dotnet/tools/dotnet-ef migrations add initial --project=csye6225, 
       - run:
           name: "Update Database"
           command: /root/.dotnet/tools/dotnet-ef database update --project=csye6225
