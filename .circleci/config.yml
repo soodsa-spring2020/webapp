@@ -20,7 +20,7 @@ jobs:
           command: dotnet tool install --global dotnet-ef --version 3.0.0
       - run:
           name: "Setup Postgres Client"
-          command: apt-get update && apt-get install postgresql-client && y
+          command: apt-get update && apt-get -y install postgresql-client && y
       - run:
           name: "Log Into Postgres"
           command: psql -p 5432 -U postgres -h 127.0.0.1  
@@ -55,7 +55,7 @@ jobs:
           command: dotnet tool install --global dotnet-ef --version 3.0.0
       - run:
           name: "Setup Postgres Client"
-          command: apt-get update && apt-get install postgresql-client && y
+          command: apt-get update && apt-get -y install postgresql-client
       - run:
           name: "Log Into Postgres"
           command: psql -p 5432 -U postgres -h 127.0.0.1  
