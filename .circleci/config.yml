@@ -59,7 +59,7 @@ jobs:
       - run:
           name: "Create DB User"
           command: psql -p 5432 -U postgres -h 127.0.0.1 -d postgres -c "CREATE USER sajal WITH PASSWORD 'sajal';" 
-     - run:
+      - run:
           name: "Create DB"
           command: psql -p 5432 -U postgres -h 127.0.0.1 -d postgres -c "CREATE DATABASE webappdb;"
       - run:
