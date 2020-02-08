@@ -23,7 +23,7 @@ jobs:
           command: apt-get update && apt-get -y install postgresql-client && y
       - run:
           name: "Log Into Postgres"
-          command: psql -p 5432 -U postgres -h 127.0.0.1 -c "CREATE USER sajal WITH PASSWORD 'sajal';" "CREATE DATABASE webappdb;"
+          command: psql -p 5432 -U postgres -h 127.0.0.1 -d postgres -c "CREATE USER sajal WITH PASSWORD 'sajal';" "CREATE DATABASE webappdb;"
       - run:
           name: "Add Migrations"
           command: /root/.dotnet/tools/dotnet-ef migrations add initial --project=csye6225
@@ -55,7 +55,7 @@ jobs:
           command: apt-get update && apt-get -y install postgresql-client
       - run:
           name: "Log Into Postgres"
-          command: psql -p 5432 -U postgres -h 127.0.0.1 -c "CREATE USER sajal WITH PASSWORD 'sajal';" "CREATE DATABASE webappdb;"
+          command: psql -p 5432 -U postgres -h 127.0.0.1 -d postgres -c "CREATE USER sajal WITH PASSWORD 'sajal';" "CREATE DATABASE webappdb;"
       - run:
           name: "Add Migrations"
           command: /root/.dotnet/tools/dotnet-ef migrations add initial --project=csye6225
