@@ -22,6 +22,8 @@ using System.Text;
 using Newtonsoft.Json;
 using System.Diagnostics;
 using Xunit.Abstractions;
+using csye6225.Models;
+using System.Reflection;
 
 namespace UnitTests
 {
@@ -100,6 +102,27 @@ namespace UnitTests
             //_console.WriteLine(Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT"));
             _console.WriteLine("CreateUser_IntiTest {0}", response.StatusCode);
             Assert.Equal(HttpStatusCode.Created, response.StatusCode); 
+        }
+
+        [Fact]
+        public async Task UploadFileTest()
+        {
+            var file_path = @"../../../tmp/bills/32dd8f95-2819-4354-a2dc-d0abf6aa0e12/Invoice-0000001.pdf";
+         
+            //string dir = Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "..\\..\\..\\")) ; //Directory.GetParent(Directory.GetCurrentDirectory()).Parent.FullName;
+            //string file_path = Path.Combine(dir, @"tmp/bills/32dd8f95-2819-4354-a2dc-d0abf6aa0e12/Invoice-0000001.pdf");
+            FileInfo file  = new FileInfo(file_path);
+
+            if(file.Exists) {
+                string file_name = file.FullName;
+                string ext = file.Extension;
+                long var3 = file.Length;
+                string var4 = file.Name;
+                string var5 = file.DirectoryName;
+                string var6 = file.Directory.Name; //Bill Name 
+            }
+
+            Assert.Equal(file.Exists, true); 
         }
     }
 }
