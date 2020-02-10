@@ -33,5 +33,20 @@ namespace csye6225.Helpers
 
             return filePath;
         }
+
+        public static void DeleteBillAttachment(string billId) 
+        {
+            var dir = AppContext.BaseDirectory.Substring(0, AppContext.BaseDirectory.LastIndexOf("/bin"));
+            var billsFolder = Path.Combine(dir, @"tmp/bills", billId);
+
+            if(Directory.Exists(billsFolder)) {
+                string[] files = Directory.GetFiles(billsFolder);
+                foreach(string f in files) {
+                    File.Delete(f);
+                }
+
+                Directory.Delete(billsFolder);
+            }
+        }
     }
 }

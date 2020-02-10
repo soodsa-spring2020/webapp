@@ -112,11 +112,52 @@ namespace csye6225.Controllers
             //File Uploaded Succesfully, Update the database
             FileInfo fileInfo = new FileInfo(filePath);
             var attachment = await _billService.StoreAttachment(id, fileInfo);
-
             if (attachment == null)
-                return BadRequest(new { message = "Bill not found." });
+                return BadRequest(new { message = "Error saving attachment information." });
 
-             return Created(string.Empty, attachment);
+            return Created(string.Empty, attachment);
+        }
+
+        [Authorize]
+        [Route("v1/bill/{billId}/file/{fileId}")] 
+        [HttpGet] 
+        public async Task<IActionResult> Attachment(string billId, string fileId)
+        {
+            var ownerId = this.User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var bill = await _billService.GetBill(ownerId, billId);
+
+            if (bill == null)
+                return NotFound(new { message = "Bill not found." });
+
+            if(bill.attachment == null || bill.attachment.id.ToString() != fileId)
+                return NotFound(new { message = "Attachment not found." });
+
+            return Ok(bill.attachment);
+        }
+
+        [Authorize]
+        [Route("v1/bill/{billId}/file/{fileId}")] 
+        [HttpDelete] 
+        public async Task<IActionResult> DeleteAttachment(string billId, string fileId)
+        {
+            var ownerId = this.User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var bill = await _billService.GetBill(ownerId, billId);
+
+            if (bill == null)
+                return NotFound(new { message = "Bill not found." });
+
+            if(bill.attachment == null || bill.attachment.id.ToString() != fileId)
+                return NotFound(new { message = "Attachment not found." });
+
+            //Remove file from the local storage
+            FileHelper.DeleteBillAttachment(billId);
+
+            //Delete file information from the database
+            var isDeleted = await _billService.DeleteAttachment(billId, fileId);
+            if(!isDeleted)
+                return BadRequest(new { message = "Error deleting attachment information." });
+
+            return NoContent();
         }
     }
 }

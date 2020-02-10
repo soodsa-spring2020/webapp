@@ -14,10 +14,11 @@ namespace csye6225.Services
     {
         Task<BillResponse> Create(string ownerId, BillCreateRequest req);
         Task<IEnumerable<BillResponse>> GetUserBills(string ownerId);
-        Task<Boolean> DeleteUserBill(string ownerId, string billId);
+        Task<bool> DeleteUserBill(string ownerId, string billId);
         Task<BillResponse> GetBill(string ownerId, string billId);
         Task<BillResponse> Update(string ownerId, string billId, BillUpdateRequest req);
         Task<FileResponse> StoreAttachment(string billId, FileInfo fileInfo);
+        Task<bool> DeleteAttachment(string billId, string fileId);
     }
 
     public class BillService : IBillService
@@ -142,6 +143,26 @@ namespace csye6225.Services
 
                 await _context.SaveChangesAsync();
                 return _mapper.Map<FileResponse>(file);
+            }
+        }
+
+        public async Task<bool> DeleteAttachment(string billId, string fileId)
+        {
+            using(_context = new dbContext())
+            {
+                var bill = await Task.Run(() => _context.Bill.FirstOrDefault(x => x.id.ToString() == billId));
+                if (bill == null)
+                    return false;
+
+                var file = await Task.Run(() => _context.File.FirstOrDefault(x => x.bill_id.ToString() == bill.id.ToString()));
+                if(file == null) {
+                   return false;
+                }
+
+                bill.attachment = null;
+                _context.File.Remove(file); 
+                await _context.SaveChangesAsync();
+                return true;
             }
         }
     }
