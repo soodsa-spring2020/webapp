@@ -1,5 +1,7 @@
+using System.IO;
 using System.Security.Claims;
 using System.Threading.Tasks;
+using csye6225.Helpers;
 using csye6225.Models;
 using csye6225.Services;
 using Microsoft.AspNetCore.Authorization;
@@ -87,6 +89,34 @@ namespace csye6225.Controllers
                 return BadRequest(new { message = "Bill not found." });
 
             return NoContent();
+        }
+
+        [Authorize]
+        [Route("v1/bill/{id}/file")] 
+        [HttpPost] 
+        public async Task<IActionResult> Attachment(string id, [FromForm]FileCreateRequest req) 
+        {    
+            var ownerId = this.User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            //Check if bill exists for the owner
+            var bill = await _billService.GetBill(ownerId, id);
+            if (bill == null)
+                return NotFound(new { message = "Bill not found." });
+            
+            //Upload the file 
+            var filePath = await FileHelper.UploadBillAttachment(id, req.file);
+            if(string.IsNullOrEmpty(filePath)) {
+                return BadRequest(new { message = "Bill attachment could not be uploaded." });
+            }
+
+            //File Uploaded Succesfully, Update the database
+            FileInfo fileInfo = new FileInfo(filePath);
+            var attachment = await _billService.StoreAttachment(id, fileInfo);
+
+            if (attachment == null)
+                return BadRequest(new { message = "Bill not found." });
+
+             return Created(string.Empty, attachment);
         }
     }
 }

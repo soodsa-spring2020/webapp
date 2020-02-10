@@ -5,6 +5,7 @@ using AutoMapper;
 using System.Linq;
 using csye6225.Common.Enums;
 using csye6225.Models;
+using System.IO;
 
 namespace csye6225.Services
 {
@@ -15,6 +16,9 @@ namespace csye6225.Services
         Task<Boolean> DeleteUserBill(string ownerId, string billId);
         Task<BillResponse> GetBill(string ownerId, string billId);
         Task<BillResponse> Update(string ownerId, string billId, BillUpdateRequest req);
+    
+        Task<FileResponse> StoreAttachment(string billId, FileInfo fileInfo);
+    
     }
 
     public class BillService : IBillService
@@ -100,6 +104,35 @@ namespace csye6225.Services
                 bill.payment_status = (int)((PaymentStatusEnum) Enum.Parse(typeof(PaymentStatusEnum), req.payment_status));
                 await _context.SaveChangesAsync();
                 return _mapper.Map<BillResponse>(bill);
+            }
+        }
+
+        public async Task<FileResponse> StoreAttachment(string billId, FileInfo fileInfo)
+        {
+            using(_context = new dbContext())
+            {
+                var bill = await Task.Run(() => _context.Bill.FirstOrDefault(x => x.id.ToString() == billId));
+                if (bill == null)
+                    return null;
+
+                var file = await Task.Run(() => _context.File.FirstOrDefault(x => x.id.ToString() == bill.attachment.ToString()));
+                if(file == null) {
+                    file  = new FileModel();
+                    file.id = Guid.NewGuid();
+                    _context.File.Add(file);
+
+                    bill.attachment = file.id;
+                }
+
+                var rootDir = AppContext.BaseDirectory.Substring(0, AppContext.BaseDirectory.LastIndexOf("/bin"));
+                file.url = Path.GetRelativePath(rootDir, fileInfo.FullName);
+                file.file_name = fileInfo.Name;
+                file.file_ext = fileInfo.Extension;
+                file.file_size = fileInfo.Length;
+                file.hash_code = fileInfo.GetHashCode();
+                file.upload_date = DateTime.Now;
+                await _context.SaveChangesAsync();
+                return _mapper.Map<FileResponse>(file);
             }
         }
     }

@@ -1,8 +1,8 @@
-﻿using System;
+using System;
 
 namespace csye6225.Models
 {
-    public class FileModel
+    public class FileResponse
     {
         public Guid id { get; set; }
         public string file_name { get; set; }
