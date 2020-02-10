@@ -104,7 +104,7 @@ namespace UnitTests
         }
 
         [Fact]
-        public async Task UploadFileTest()
+        public void UploadFileTest()
         {
             //var file_path = @"../../../tmp/bills/32dd8f95-2819-4354-a2dc-d0abf6aa0e12/Invoice-0000001.pdf";
          
@@ -140,7 +140,6 @@ namespace UnitTests
                 string var6 = file.Directory.Name; //Bill Name 
                 int var7 = file.GetHashCode();
                 string var5 = file.DirectoryName;
-                var test = "test";
             }
 
             Assert.Equal(file.Exists, true); 
