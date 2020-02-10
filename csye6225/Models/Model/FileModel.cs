@@ -11,5 +11,7 @@ namespace csye6225.Models
         public string  url { get; set; }
         public int hash_code { get; set; }
         public DateTime upload_date { get; set; }
+        public Guid bill_id { get; set; }
+        public BillModel bill { get; set; }
     }
 }

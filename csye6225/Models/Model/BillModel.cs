@@ -14,6 +14,6 @@ namespace csye6225.Models
         public Double amount_due { get; set; } 
         public string categories { get; set; }    
         public int payment_status { get; set; }
-        public Guid? attachment { get; set; }
+        public FileModel attachment { get; set; }
     }
 }

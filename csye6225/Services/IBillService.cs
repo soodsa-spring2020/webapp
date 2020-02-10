@@ -6,6 +6,7 @@ using System.Linq;
 using csye6225.Common.Enums;
 using csye6225.Models;
 using System.IO;
+using Microsoft.EntityFrameworkCore;
 
 namespace csye6225.Services
 {
@@ -16,9 +17,7 @@ namespace csye6225.Services
         Task<Boolean> DeleteUserBill(string ownerId, string billId);
         Task<BillResponse> GetBill(string ownerId, string billId);
         Task<BillResponse> Update(string ownerId, string billId, BillUpdateRequest req);
-    
         Task<FileResponse> StoreAttachment(string billId, FileInfo fileInfo);
-    
     }
 
     public class BillService : IBillService
@@ -59,7 +58,11 @@ namespace csye6225.Services
 
         public async Task<IEnumerable<BillResponse>> GetUserBills(string ownerId)
         {
-            var bills = await Task.Run(() => _context.Bill.Where(x => x.owner_id.ToString() == ownerId).OrderByDescending(o => o.updated_ts));
+            var bills = await Task.Run(() =>
+                _context.Bill.Include(b => b.attachment).Where(x => x.owner_id.ToString() == ownerId)
+                .OrderByDescending(o => o.updated_ts)
+             );
+            
             return _mapper.Map<IEnumerable<BillResponse>>(bills);
         }
 
@@ -82,7 +85,12 @@ namespace csye6225.Services
 
         public async Task<BillResponse> GetBill(string ownerId, string billId)
         {
-            var bill = await Task.Run(() => _context.Bill.FirstOrDefault(x => x.owner_id.ToString() == ownerId && x.id.ToString() == billId));
+            var bill = await Task.Run(() =>
+                _context.Bill.Include(b => b.attachment).FirstOrDefault(
+                    x => x.owner_id.ToString() == ownerId && x.id.ToString() == billId
+                )
+            );
+            
             return _mapper.Map<BillResponse>(bill);
         }
 
@@ -115,13 +123,13 @@ namespace csye6225.Services
                 if (bill == null)
                     return null;
 
-                var file = await Task.Run(() => _context.File.FirstOrDefault(x => x.id.ToString() == bill.attachment.ToString()));
+                var file = await Task.Run(() => _context.File.FirstOrDefault(x => x.bill_id.ToString() == bill.id.ToString()));
                 if(file == null) {
                     file  = new FileModel();
                     file.id = Guid.NewGuid();
+                    file.bill_id = bill.id;
                     _context.File.Add(file);
-
-                    bill.attachment = file.id;
+                    bill.attachment = file;
                 }
 
                 var rootDir = AppContext.BaseDirectory.Substring(0, AppContext.BaseDirectory.LastIndexOf("/bin"));
@@ -131,6 +139,7 @@ namespace csye6225.Services
                 file.file_size = fileInfo.Length;
                 file.hash_code = fileInfo.GetHashCode();
                 file.upload_date = DateTime.Now;
+
                 await _context.SaveChangesAsync();
                 return _mapper.Map<FileResponse>(file);
             }

@@ -49,7 +49,7 @@ namespace csye6225.Controllers
         }
 
         [Authorize]
-        [Route("v1/bill")] 
+        [Route("v1/bill/{id}")] 
         [HttpDelete] 
         public async Task<IActionResult> Delete(string id) 
         {    
@@ -63,7 +63,7 @@ namespace csye6225.Controllers
         }
 
         [Authorize]
-        [Route("v1/bill")] 
+        [Route("v1/bill/{id}")] 
         [HttpGet] 
         public async Task<IActionResult> Get(string id) 
         {    
@@ -78,7 +78,7 @@ namespace csye6225.Controllers
 
 
         [Authorize]
-        [Route("v1/bill")] 
+        [Route("v1/bill/{id}")] 
         [HttpPut] 
         public async Task<IActionResult> Update(string id, [FromBody]BillUpdateRequest req) 
         {    
