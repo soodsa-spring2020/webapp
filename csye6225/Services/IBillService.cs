@@ -18,7 +18,7 @@ namespace csye6225.Services
         Task<BillResponse> GetBill(string ownerId, string billId);
         Task<BillResponse> Update(string ownerId, string billId, BillUpdateRequest req);
         Task<FileResponse> StoreAttachment(string billId, FileInfo fileInfo);
-        Task<bool> DeleteAttachment(string billId, string fileId);
+        Task<bool> DeleteAttachment(string billId);
     }
 
     public class BillService : IBillService
@@ -69,14 +69,13 @@ namespace csye6225.Services
 
         public async Task<bool> DeleteUserBill(string ownerId, string billId)
         {
-            var bill = await Task.Run(() => _context.Bill.FirstOrDefault(x => x.owner_id.ToString() == ownerId && x.id.ToString() == billId));
-
-            if(bill == null) {
-                return false;
-            }
-
             using (var _context = new dbContext()) 
             {
+                var bill = await Task.Run(() => _context.Bill.FirstOrDefault(x => x.owner_id.ToString() == ownerId && x.id.ToString() == billId));
+
+                if(bill == null)
+                    return false;
+            
                 _context.Bill.Remove(bill); 
                 await _context.SaveChangesAsync();
             }
@@ -146,20 +145,20 @@ namespace csye6225.Services
             }
         }
 
-        public async Task<bool> DeleteAttachment(string billId, string fileId)
+        public async Task<bool> DeleteAttachment(string billId)
         {
             using(_context = new dbContext())
             {
-                var bill = await Task.Run(() => _context.Bill.FirstOrDefault(x => x.id.ToString() == billId));
-                if (bill == null)
-                    return false;
+                // var bill = await Task.Run(() => _context.Bill.FirstOrDefault(x => x.id.ToString() == billId));
+                // if (bill == null)
+                //     return false;
 
-                var file = await Task.Run(() => _context.File.FirstOrDefault(x => x.bill_id.ToString() == bill.id.ToString()));
+                var file = await Task.Run(() => _context.File.FirstOrDefault(x => x.bill_id.ToString() == billId));
                 if(file == null) {
                    return false;
                 }
 
-                bill.attachment = null;
+                //bill.attachment = null;
                 _context.File.Remove(file); 
                 await _context.SaveChangesAsync();
                 return true;

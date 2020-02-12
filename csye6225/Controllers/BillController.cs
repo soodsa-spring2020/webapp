@@ -54,7 +54,13 @@ namespace csye6225.Controllers
         public async Task<IActionResult> Delete(string id) 
         {    
             var ownerId = this.User.FindFirstValue(ClaimTypes.NameIdentifier);
-            var isDeleted = await _billService.DeleteUserBill(ownerId, id);
+
+            //Remove file from the local storage
+            FileHelper.DeleteBillAttachment(id);
+
+            //Delete file information from the database
+            var isDeleted = await _billService.DeleteAttachment(id);
+            isDeleted = await _billService.DeleteUserBill(ownerId, id);
 
             if (!isDeleted)
                 return NotFound(new { message = "Bill not found." });
@@ -153,7 +159,7 @@ namespace csye6225.Controllers
             FileHelper.DeleteBillAttachment(billId);
 
             //Delete file information from the database
-            var isDeleted = await _billService.DeleteAttachment(billId, fileId);
+            var isDeleted = await _billService.DeleteAttachment(billId);
             if(!isDeleted)
                 return BadRequest(new { message = "Error deleting attachment information." });
 
