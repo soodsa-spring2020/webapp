@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 
@@ -24,8 +25,10 @@ namespace csye6225.Helpers
             }
 
             var filePath = string.Empty;
+            var fileName = returnSafeFileName(file.FileName);
+
             if (file.Length > 0) {
-                filePath = Path.Combine(billsFolder, file.FileName);
+                filePath = Path.Combine(billsFolder, fileName);
                 using (var fileStream = new FileStream(filePath, FileMode.Create)) {
                     await file.CopyToAsync(fileStream);
                 }
@@ -47,6 +50,14 @@ namespace csye6225.Helpers
 
                 Directory.Delete(billsFolder);
             }
+        }
+
+        private static string returnSafeFileName(string fileName)
+        {
+            fileName = fileName.Replace(" ", "_");
+            Path.GetInvalidFileNameChars().Aggregate(fileName, (current, c) => current.Replace(c, '_'));
+            Path.GetInvalidPathChars().Aggregate(fileName, (current, c) => current.Replace(c, '_'));
+            return fileName;
         }
     }
 }
