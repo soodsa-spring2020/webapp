@@ -16,6 +16,16 @@ namespace csye6225.Models
 
         public virtual DbSet<BillModel> Bill { get; set; }
 
+        public virtual DbSet<FileModel> File { get; set; }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<BillModel>()
+                .HasOne(b => b.attachment)
+                .WithOne(i => i.bill)
+                .HasForeignKey<FileModel>(b => b.bill_id);
+        }
+
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             if (!optionsBuilder.IsConfigured)

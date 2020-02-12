@@ -16,6 +16,8 @@ namespace csye6225.Models
             .ForMember(dest => dest.categories, m => m.MapFrom(src => src.categories.Split(',',System.StringSplitOptions.None).ToList()))
             .ForMember(dest => dest.payment_status, m => m.MapFrom(src => Enum.GetName(typeof(PaymentStatusEnum), src.payment_status)));
         
+            //File
+            CreateMap<FileModel, FileResponse>();
         }
     }
 }

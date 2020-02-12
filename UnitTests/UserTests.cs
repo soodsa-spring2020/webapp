@@ -22,6 +22,7 @@ using System.Text;
 using Newtonsoft.Json;
 using System.Diagnostics;
 using Xunit.Abstractions;
+using System.Reflection;
 
 namespace UnitTests
 {
@@ -100,6 +101,56 @@ namespace UnitTests
             //_console.WriteLine(Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT"));
             _console.WriteLine("CreateUser_IntiTest {0}", response.StatusCode);
             Assert.Equal(HttpStatusCode.Created, response.StatusCode); 
+        }
+
+        [Fact]
+        public void UploadFileTest()
+        {
+            //var file_path = @"../../../tmp/bills/32dd8f95-2819-4354-a2dc-d0abf6aa0e12/Invoice-0000001.pdf";
+         
+            //var dir = Directory.GetParent(Directory.GetCurrentDirectory());
+            //var dir1 = AppContext.BaseDirectory;
+            var dir2 = AppContext.BaseDirectory.Substring(0,AppContext.BaseDirectory.LastIndexOf("/bin"));
+            //var appRoot = dir2.Substring(0,dir2.LastIndexOf("/")+1);
+
+            var tempFolder = Path.Combine(dir2, @"tmp");
+            var billsFolder = Path.Combine(tempFolder, @"bills");
+            // if(!Directory.Exists(tempFolder)) {
+            //     Directory.CreateDirectory(tempFolder);
+            // }
+
+            var billFolder = Path.Combine(billsFolder, Guid.NewGuid().ToString());
+            if(!Directory.Exists(billFolder)) {
+                Directory.CreateDirectory(billFolder);
+            }
+
+            var file_path = Path.Combine(billFolder, @"Invoice-test01.pdf");
+            File.Create(file_path);
+
+            //string dir = Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "..\\..\\..\\")) ; //Directory.GetParent(Directory.GetCurrentDirectory()).Parent.FullName;
+            //string file_path = Path.Combine(dir, @"tmp/bills/32dd8f95-2819-4354-a2dc-d0abf6aa0e12/Invoice-0000001.pdf");
+            FileInfo file  = new FileInfo(file_path);
+
+            if(file.Exists) {
+                string file_name = file.FullName;
+                string ext = file.Extension;
+                long var3 = file.Length;
+                string var4 = file.Name;
+
+                string var6 = file.Directory.Name; //Bill Name 
+                int var7 = file.GetHashCode();
+                string var5 = file.DirectoryName;
+            }
+
+            Assert.Equal(file.Exists, true); 
+    
+            string[] files = Directory.GetFiles(billFolder);
+            foreach(string f in files) {
+                File.Delete(f);
+            }
+            Directory.Delete(billFolder);
+            Directory.Delete(billsFolder);
+            Directory.Delete(tempFolder);
         }
     }
 }

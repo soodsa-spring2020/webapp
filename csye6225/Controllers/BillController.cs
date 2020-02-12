@@ -1,5 +1,7 @@
+using System.IO;
 using System.Security.Claims;
 using System.Threading.Tasks;
+using csye6225.Helpers;
 using csye6225.Models;
 using csye6225.Services;
 using Microsoft.AspNetCore.Authorization;
@@ -47,12 +49,18 @@ namespace csye6225.Controllers
         }
 
         [Authorize]
-        [Route("v1/bill")] 
+        [Route("v1/bill/{id}")] 
         [HttpDelete] 
         public async Task<IActionResult> Delete(string id) 
         {    
             var ownerId = this.User.FindFirstValue(ClaimTypes.NameIdentifier);
-            var isDeleted = await _billService.DeleteUserBill(ownerId, id);
+
+            //Remove file from the local storage
+            FileHelper.DeleteBillAttachment(id);
+
+            //Delete file information from the database
+            var isDeleted = await _billService.DeleteAttachment(id);
+            isDeleted = await _billService.DeleteUserBill(ownerId, id);
 
             if (!isDeleted)
                 return NotFound(new { message = "Bill not found." });
@@ -61,7 +69,7 @@ namespace csye6225.Controllers
         }
 
         [Authorize]
-        [Route("v1/bill")] 
+        [Route("v1/bill/{id}")] 
         [HttpGet] 
         public async Task<IActionResult> Get(string id) 
         {    
@@ -76,7 +84,7 @@ namespace csye6225.Controllers
 
 
         [Authorize]
-        [Route("v1/bill")] 
+        [Route("v1/bill/{id}")] 
         [HttpPut] 
         public async Task<IActionResult> Update(string id, [FromBody]BillUpdateRequest req) 
         {    
@@ -85,6 +93,75 @@ namespace csye6225.Controllers
 
             if (user == null)
                 return BadRequest(new { message = "Bill not found." });
+
+            return NoContent();
+        }
+
+        [Authorize]
+        [Route("v1/bill/{id}/file")] 
+        [HttpPost] 
+        public async Task<IActionResult> Attachment(string id, [FromForm]FileCreateRequest req) 
+        {    
+            var ownerId = this.User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            //Check if bill exists for the owner
+            var bill = await _billService.GetBill(ownerId, id);
+            if (bill == null)
+                return NotFound(new { message = "Bill not found." });
+            
+            //Upload the file 
+            var filePath = await FileHelper.UploadBillAttachment(id, req.file);
+            if(string.IsNullOrEmpty(filePath)) {
+                return BadRequest(new { message = "Bill attachment could not be uploaded." });
+            }
+
+            //File Uploaded Succesfully, Update the database
+            FileInfo fileInfo = new FileInfo(filePath);
+            var attachment = await _billService.StoreAttachment(id, fileInfo);
+            if (attachment == null)
+                return BadRequest(new { message = "Error saving attachment information." });
+
+            return Created(string.Empty, attachment);
+        }
+
+        [Authorize]
+        [Route("v1/bill/{billId}/file/{fileId}")] 
+        [HttpGet] 
+        public async Task<IActionResult> Attachment(string billId, string fileId)
+        {
+            var ownerId = this.User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var bill = await _billService.GetBill(ownerId, billId);
+
+            if (bill == null)
+                return NotFound(new { message = "Bill not found." });
+
+            if(bill.attachment == null || bill.attachment.id.ToString() != fileId)
+                return NotFound(new { message = "Attachment not found." });
+
+            return Ok(bill.attachment);
+        }
+
+        [Authorize]
+        [Route("v1/bill/{billId}/file/{fileId}")] 
+        [HttpDelete] 
+        public async Task<IActionResult> DeleteAttachment(string billId, string fileId)
+        {
+            var ownerId = this.User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var bill = await _billService.GetBill(ownerId, billId);
+
+            if (bill == null)
+                return NotFound(new { message = "Bill not found." });
+
+            if(bill.attachment == null || bill.attachment.id.ToString() != fileId)
+                return NotFound(new { message = "Attachment not found." });
+
+            //Remove file from the local storage
+            FileHelper.DeleteBillAttachment(billId);
+
+            //Delete file information from the database
+            var isDeleted = await _billService.DeleteAttachment(billId);
+            if(!isDeleted)
+                return BadRequest(new { message = "Error deleting attachment information." });
 
             return NoContent();
         }

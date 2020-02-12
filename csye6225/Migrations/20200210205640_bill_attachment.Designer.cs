@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using csye6225.Models;
@@ -9,9 +10,10 @@ using csye6225.Models;
 namespace csye6225.Migrations
 {
     [DbContext(typeof(dbContext))]
-    partial class dbContextModelSnapshot : ModelSnapshot
+    [Migration("20200210205640_bill_attachment")]
+    partial class bill_attachment
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -57,6 +59,9 @@ namespace csye6225.Migrations
                     b.Property<double>("amount_due")
                         .HasColumnType("double precision");
 
+                    b.Property<Guid?>("attachment")
+                        .HasColumnType("uuid");
+
                     b.Property<DateTime>("bill_date")
                         .HasColumnType("timestamp without time zone");
 
@@ -92,9 +97,6 @@ namespace csye6225.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
-                    b.Property<Guid>("bill_id")
-                        .HasColumnType("uuid");
-
                     b.Property<string>("file_ext")
                         .HasColumnType("text");
 
@@ -115,19 +117,7 @@ namespace csye6225.Migrations
 
                     b.HasKey("id");
 
-                    b.HasIndex("bill_id")
-                        .IsUnique();
-
                     b.ToTable("File");
-                });
-
-            modelBuilder.Entity("csye6225.Models.FileModel", b =>
-                {
-                    b.HasOne("csye6225.Models.BillModel", "bill")
-                        .WithOne("attachment")
-                        .HasForeignKey("csye6225.Models.FileModel", "bill_id")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
                 });
 #pragma warning restore 612, 618
         }
