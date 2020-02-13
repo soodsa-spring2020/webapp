@@ -100,7 +100,7 @@ namespace csye6225.Controllers
         [Authorize]
         [Route("v1/bill/{id}/file")] 
         [HttpPost] 
-        public async Task<IActionResult> Attachment(string id, [FromForm]FileCreateRequest req) 
+        public async Task<IActionResult> UploadAttachment(string id, [FromForm]FileCreateRequest req) 
         {    
             var ownerId = this.User.FindFirstValue(ClaimTypes.NameIdentifier);
 
@@ -127,7 +127,7 @@ namespace csye6225.Controllers
         [Authorize]
         [Route("v1/bill/{billId}/file/{fileId}")] 
         [HttpGet] 
-        public async Task<IActionResult> Attachment(string billId, string fileId)
+        public async Task<IActionResult> GetAttachment(string billId, string fileId)
         {
             var ownerId = this.User.FindFirstValue(ClaimTypes.NameIdentifier);
             var bill = await _billService.GetBill(ownerId, billId);
