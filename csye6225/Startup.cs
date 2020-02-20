@@ -22,7 +22,7 @@ namespace csye6225
             var builder = new ConfigurationBuilder()
                 .SetBasePath(env.ContentRootPath)
                 //.AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
-                .AddJsonFile($"appsettings.{envName}.json", optional: false)
+                .AddJsonFile($"appsettings.{envName}.json", optional: true)
                 .AddEnvironmentVariables();
             Configuration = builder.Build();
         }
