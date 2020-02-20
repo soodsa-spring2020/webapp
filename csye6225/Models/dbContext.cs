@@ -34,7 +34,7 @@ namespace csye6225.Models
             
                 var configuration = new ConfigurationBuilder()
                     .SetBasePath(AppContext.BaseDirectory)
-                    .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+                    .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
                     .AddJsonFile($"appsettings.{env}.json", optional: true)
                     .AddEnvironmentVariables()
                     .Build();
