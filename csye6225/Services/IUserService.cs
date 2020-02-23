@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using AutoMapper;
 using csye6225.Helpers;
 using csye6225.Models;
+using Microsoft.Extensions.Options;
 
 namespace csye6225.Services
 {
@@ -22,11 +23,13 @@ namespace csye6225.Services
     {
         private dbContext _context;
         private readonly IMapper _mapper;
+        private IOptions<Parameters> _options;
 
-        public UserService(dbContext context, IMapper mapper) 
+        public UserService(dbContext context, IMapper mapper, IOptions<Parameters> options) 
         {
             _context = context;
             _mapper = mapper;
+            _options = options;
         }
 
         public async Task<AccountResponse> Authenticate(string email, string password)
@@ -72,7 +75,7 @@ namespace csye6225.Services
                 account_updated = DateTime.Now
             };
 
-            using(_context = new dbContext())
+            using(_context = new dbContext(_options))
             {
                 _context.Account.Add(user); 
                 await _context.SaveChangesAsync();
@@ -82,7 +85,7 @@ namespace csye6225.Services
 
         public async Task<AccountResponse> Update(string id, AccountUpdateRequest req)
         {
-            using(_context = new dbContext())
+            using(_context = new dbContext(_options))
             {
                 var user = await Task.Run(() => _context.Account.FirstOrDefault(x => x.id.ToString() == id));
 

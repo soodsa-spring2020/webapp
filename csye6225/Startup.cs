@@ -27,6 +27,11 @@ namespace csye6225
             Configuration = builder.Build();
         }
 
+        // public Startup(IConfiguration configuration)
+        // {
+        //     Configuration = configuration;
+        // }
+
         public IConfiguration Configuration { get; }
 
         // This method gets called by the runtime. Use this method to add services to the container.
@@ -34,16 +39,18 @@ namespace csye6225
         {
             //services.AddCors();
             services.AddControllers();
-
+            services.Configure<Parameters>(Configuration.GetSection("Config"));
             //services.AddEntityFrameworkNpgsql();
 
             //services.AddScoped<IPasswordHasher<ApplicationUser>, BCryptPasswordHasher<ApplicationUser>>();
 
             //services.AddIdentity<ApplicationUser, IdentityRole>();
-            var connectionString = Configuration.GetConnectionString("DBConnection");
-            services.AddDbContext<dbContext> (
-                options => options.UseNpgsql(connectionString)
-            );
+            // var connectionString = Configuration.GetConnectionString("DBConnection");
+            // services.AddDbContext<dbContext> (
+            //     options => options.UseNpgsql(connectionString)
+            // );
+
+            services.AddDbContext<dbContext> ();
             
             //services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Latest);
 
@@ -58,6 +65,7 @@ namespace csye6225
             services.AddAutoMapper(typeof(Startup));
 
             // configure DI for application services
+
             services.AddScoped<IUserService, UserService>();
             services.AddScoped<IBillService, BillService>();
         }
@@ -74,18 +82,9 @@ namespace csye6225
                 app.UseHsts();
             }
 
+            app.UseCors(builder =>builder.AllowAnyHeader().AllowAnyOrigin().AllowAnyMethod());
             app.UseHttpsRedirection();
-            
-            //app.UseMvc();
-
             app.UseRouting();
-
-            // global cors policy
-            // app.UseCors(x => x
-            //     .AllowAnyOrigin()
-            //     .AllowAnyMethod()
-            //     .AllowAnyHeader());
-
             app.UseAuthentication();
             app.UseAuthorization();
 
