@@ -14,7 +14,7 @@ namespace csye6225.Models
         public dbContext() { }
         
         public dbContext(IOptions<Parameters> options) { 
-            APP_CONNECTION_STRING = options.Value.AuroraConnectionString;
+            APP_CONNECTION_STRING = options.Value.RDSConnectionString;
         }    
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
@@ -23,7 +23,8 @@ namespace csye6225.Models
                 var env = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
                 var configuration = new ConfigurationBuilder()
                     .SetBasePath(AppContext.BaseDirectory)
-                    .AddJsonFile($"appsettings.{env}.json", optional: false, reloadOnChange: true)
+                    .AddJsonFile($"appsettings.json", optional: true, reloadOnChange: true)
+                    .AddJsonFile($"appsettings.{env}.json", optional: true, reloadOnChange: true)
                     .AddEnvironmentVariables()
                     .Build();
 
@@ -38,7 +39,6 @@ namespace csye6225.Models
         public virtual DbSet<AccountModel> Account { get; set; }   
         public virtual DbSet<BillModel> Bill { get; set; }
         public virtual DbSet<FileModel> File { get; set; }
-
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

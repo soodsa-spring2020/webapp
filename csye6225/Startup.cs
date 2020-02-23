@@ -11,26 +11,16 @@ using csye6225.Helpers;
 using csye6225.Filters;
 using AutoMapper;
 using System;
+using Microsoft.Extensions.Options;
 
 namespace csye6225
 {
     public class Startup
     {
-        public Startup(IWebHostEnvironment env)
-        { 
-            var envName = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
-            var builder = new ConfigurationBuilder()
-                .SetBasePath(env.ContentRootPath)
-                //.AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
-                .AddJsonFile($"appsettings.{envName}.json", optional: true)
-                .AddEnvironmentVariables();
-            Configuration = builder.Build();
+        public Startup(IConfiguration configuration)
+        {
+            Configuration = configuration;
         }
-
-        // public Startup(IConfiguration configuration)
-        // {
-        //     Configuration = configuration;
-        // }
 
         public IConfiguration Configuration { get; }
 
@@ -50,7 +40,7 @@ namespace csye6225
             //     options => options.UseNpgsql(connectionString)
             // );
 
-            services.AddDbContext<dbContext> ();
+            services.AddDbContext<dbContext>();
             
             //services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Latest);
 
