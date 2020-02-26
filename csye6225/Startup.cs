@@ -23,7 +23,7 @@ namespace csye6225
             var env = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
             Configuration = new ConfigurationBuilder()
                 .SetBasePath(AppContext.BaseDirectory)
-                .AddJsonFile($"appsettings.json", false, true)
+                .AddJsonFile($"appsettings.json", true, true)
                 .AddJsonFile($"appsettings.{env}.json", true, true)
                 .AddEnvironmentVariables()
                 .Build();
