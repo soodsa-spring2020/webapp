@@ -21,9 +21,16 @@
       "commandName": "Project",
       "launchBrowser": true,
       "launchUrl": "v1/user",
-      "applicationUrl": "http://localhost:5001;http://localhost:5000",
+      "applicationUrl": "http://localhost:5000;http://localhost:5001",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
+      }
+    },
+    "Staging": {
+      "commandName": "Project",
+      "applicationUrl": "http://0.0.0.0",
+      "environmentVariables": {
+      	"ASPNETCORE_ENVIRONMENT": "Staging"
       }
     }
   }

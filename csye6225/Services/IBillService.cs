@@ -7,6 +7,7 @@ using csye6225.Common.Enums;
 using csye6225.Models;
 using System.IO;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 
 namespace csye6225.Services
 {
@@ -25,11 +26,13 @@ namespace csye6225.Services
     {
         private dbContext _context;
         private readonly IMapper _mapper;
+        private IOptions<Parameters> _options;
 
-        public BillService(dbContext context, IMapper mapper) 
+        public BillService(dbContext context, IMapper mapper, IOptions<Parameters> options) 
         {
             _context = context;
             _mapper = mapper;
+            _options = options;
         }
 
         public async Task<BillResponse> Create(string ownerId, BillCreateRequest req)
@@ -48,7 +51,7 @@ namespace csye6225.Services
                 payment_status = (int)((PaymentStatusEnum) Enum.Parse(typeof(PaymentStatusEnum), req.payment_status))
             };
 
-            using (var _context = new dbContext()) 
+            using (var _context = new dbContext(_options)) 
             {
                 _context.Bill.Add(bill); 
                 await _context.SaveChangesAsync();
@@ -69,7 +72,7 @@ namespace csye6225.Services
 
         public async Task<bool> DeleteUserBill(string ownerId, string billId)
         {
-            using (var _context = new dbContext()) 
+            using (var _context = new dbContext(_options)) 
             {
                 var bill = await Task.Run(() => _context.Bill.FirstOrDefault(x => x.owner_id.ToString() == ownerId && x.id.ToString() == billId));
 
@@ -96,7 +99,7 @@ namespace csye6225.Services
 
         public async Task<BillResponse> Update(string ownerId, string billId, BillUpdateRequest req)
         {
-            using(_context = new dbContext())
+            using(_context = new dbContext(_options))
             {
                 var bill = await Task.Run(() => _context.Bill.FirstOrDefault(x => x.owner_id.ToString() == ownerId && x.id.ToString() == billId));
 
@@ -117,7 +120,7 @@ namespace csye6225.Services
 
         public async Task<FileResponse> StoreAttachment(string billId, FileInfo fileInfo)
         {
-            using(_context = new dbContext())
+            using(_context = new dbContext(_options))
             {
                 var bill = await Task.Run(() => _context.Bill.FirstOrDefault(x => x.id.ToString() == billId));
                 if (bill == null)
@@ -147,7 +150,7 @@ namespace csye6225.Services
 
         public async Task<bool> DeleteAttachment(string billId)
         {
-            using(_context = new dbContext())
+            using(_context = new dbContext(_options))
             {
                 // var bill = await Task.Run(() => _context.Bill.FirstOrDefault(x => x.id.ToString() == billId));
                 // if (bill == null)

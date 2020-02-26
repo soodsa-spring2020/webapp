@@ -11,20 +11,15 @@ using csye6225.Helpers;
 using csye6225.Filters;
 using AutoMapper;
 using System;
+using Microsoft.Extensions.Options;
 
 namespace csye6225
 {
     public class Startup
     {
-        public Startup(IWebHostEnvironment env)
-        { 
-            var envName = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
-            var builder = new ConfigurationBuilder()
-                .SetBasePath(env.ContentRootPath)
-                .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
-                .AddJsonFile($"appsettings.{envName}.json", optional: true)
-                .AddEnvironmentVariables();
-            Configuration = builder.Build();
+        public Startup(IConfiguration configuration)
+        {
+            Configuration = configuration;
         }
 
         public IConfiguration Configuration { get; }
@@ -34,16 +29,18 @@ namespace csye6225
         {
             //services.AddCors();
             services.AddControllers();
-
+            services.Configure<Parameters>(Configuration.GetSection("Config"));
             //services.AddEntityFrameworkNpgsql();
 
             //services.AddScoped<IPasswordHasher<ApplicationUser>, BCryptPasswordHasher<ApplicationUser>>();
 
             //services.AddIdentity<ApplicationUser, IdentityRole>();
-            var connectionString = Configuration.GetConnectionString("DBConnection");
-            services.AddDbContext<dbContext> (
-                options => options.UseNpgsql(connectionString)
-            );
+            // var connectionString = Configuration.GetConnectionString("DBConnection");
+            // services.AddDbContext<dbContext> (
+            //     options => options.UseNpgsql(connectionString)
+            // );
+
+            services.AddDbContext<dbContext>();
             
             //services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Latest);
 
@@ -58,6 +55,7 @@ namespace csye6225
             services.AddAutoMapper(typeof(Startup));
 
             // configure DI for application services
+
             services.AddScoped<IUserService, UserService>();
             services.AddScoped<IBillService, BillService>();
         }
@@ -74,18 +72,9 @@ namespace csye6225
                 app.UseHsts();
             }
 
+            app.UseCors(builder =>builder.AllowAnyHeader().AllowAnyOrigin().AllowAnyMethod());
             app.UseHttpsRedirection();
-            
-            //app.UseMvc();
-
             app.UseRouting();
-
-            // global cors policy
-            // app.UseCors(x => x
-            //     .AllowAnyOrigin()
-            //     .AllowAnyMethod()
-            //     .AllowAnyHeader());
-
             app.UseAuthentication();
             app.UseAuthorization();
 
