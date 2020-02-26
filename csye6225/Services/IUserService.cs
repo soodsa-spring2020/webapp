@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using AutoMapper;
 using csye6225.Helpers;
 using csye6225.Models;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 
 namespace csye6225.Services
@@ -23,19 +24,18 @@ namespace csye6225.Services
     {
         private dbContext _context;
         private readonly IMapper _mapper;
-        private IOptions<Parameters> _options;
 
-        public UserService(dbContext context, IMapper mapper, IOptions<Parameters> options) 
+        public UserService(dbContext context, IMapper mapper)
         {
             _context = context;
             _mapper = mapper;
-            _options = options;
         }
 
         public async Task<AccountResponse> Authenticate(string email, string password)
         {
             var user = await Task.Run(() => _context.Account.FirstOrDefault(x => x.email_address == email));
-
+            _context.Entry(user).State = EntityState.Detached;
+            
             if (user == null)
                 return null;
 
@@ -49,10 +49,8 @@ namespace csye6225.Services
         public async Task<AccountResponse> Self(string id)
         {
             var user = await Task.Run(() => _context.Account.FirstOrDefault(x => x.id.ToString() == id));
-
             if (user == null)
                 return null;
-
             return _mapper.Map<AccountResponse>(user.WithoutPassword());
         }
 
@@ -75,31 +73,25 @@ namespace csye6225.Services
                 account_updated = DateTime.Now
             };
 
-            using(_context = new dbContext(_options))
-            {
-                _context.Account.Add(user); 
-                await _context.SaveChangesAsync();
-            }
+            _context.Account.Add(user); 
+            await _context.SaveChangesAsync();
             return _mapper.Map<AccountResponse>(user.WithoutPassword());
         }
 
         public async Task<AccountResponse> Update(string id, AccountUpdateRequest req)
         {
-            using(_context = new dbContext(_options))
-            {
-                var user = await Task.Run(() => _context.Account.FirstOrDefault(x => x.id.ToString() == id));
+            var user = await Task.Run(() => _context.Account.FirstOrDefault(x => x.id.ToString() == id));
 
-                if (user == null)
+            if (user == null)
                 return null;
 
-                user.first_name = req.first_name;
-                user.last_name = req.last_name;
-                user.password = BCrypt.Net.BCrypt.HashPassword(req.password);
-                user.account_updated = DateTime.Now;
+            user.first_name = req.first_name;
+            user.last_name = req.last_name;
+            user.password = BCrypt.Net.BCrypt.HashPassword(req.password);
+            user.account_updated = DateTime.Now;
 
-                await _context.SaveChangesAsync();
-                return _mapper.Map<AccountResponse>(user.WithoutPassword());
-            }
+            await _context.SaveChangesAsync();
+            return _mapper.Map<AccountResponse>(user.WithoutPassword());
         }
 
         public async Task<Boolean> CheckIfUserExists(string email)

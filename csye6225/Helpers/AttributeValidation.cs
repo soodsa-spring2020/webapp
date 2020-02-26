@@ -13,7 +13,10 @@ namespace csye6225.Helpers
         public override bool IsValid(object aValue)
         {
             PaymentStatusEnum val;
-            return Enum.TryParse(aValue.ToString(), true, out val);
+            if(aValue != null) {
+                return Enum.TryParse(aValue.ToString(), true, out val);
+            }
+            return false;
         }
     }
 
@@ -21,13 +24,15 @@ namespace csye6225.Helpers
     {  
         protected override ValidationResult IsValid(object aValue, ValidationContext validationContext)  
         {  
-            List<string> collection = aValue as List<string>;
-            if(collection.Select(s => s.Trim()).Distinct().Count() != collection.Select(s => s.Trim()).Count()){
-                return new ValidationResult("All category must be unique for the bill.");
+            if(aValue != null) {
+                List<string> collection = aValue as List<string>;
+                if(collection.Select(s => s.Trim()).Distinct().Count() != collection.Select(s => s.Trim()).Count()){
+                    return new ValidationResult("All category must be unique for the bill.");
+                }
+                return ValidationResult.Success; 
             }
-            return ValidationResult.Success; 
+            return new ValidationResult("Error.");
         }  
-  
     }
 
     public class BillDueDateValidationAttribute : ValidationAttribute  
@@ -36,14 +41,18 @@ namespace csye6225.Helpers
 
         protected override ValidationResult IsValid(object aValue, ValidationContext validationContext)  
         {  
-            var billDate = validationContext.ObjectType.GetProperty(BillDate);
-            var billDateVal = (DateTime)billDate.GetValue(validationContext.ObjectInstance, null);
-            var dueDateVal = (DateTime)aValue;
+            if(aValue != null) {
+                var billDate = validationContext.ObjectType.GetProperty(BillDate);
+                var billDateVal = (DateTime)billDate.GetValue(validationContext.ObjectInstance, null);
+                var dueDateVal = (DateTime)aValue;
 
-            if(dueDateVal < billDateVal){
-                return new ValidationResult("Due date has to be greater than the bill date.");
+                if(dueDateVal < billDateVal){
+                    return new ValidationResult("Due date has to be greater than the bill date.");
+                }
+                return ValidationResult.Success; 
             }
-            return ValidationResult.Success; 
+
+            return new ValidationResult("Error.");
         }  
   
     }
@@ -58,15 +67,18 @@ namespace csye6225.Helpers
             AllowedExtensions = fileExtensions.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries).ToList();
         }
 
-        public override bool IsValid(object value)
+        public override bool IsValid(object aValue)
         {
-            IFormFile file = value as IFormFile;
-            if (file != null)
-            {
-                var fileName = file.FileName;
-                return AllowedExtensions.Any(y => fileName.EndsWith(y));
+            if(aValue != null) {
+                IFormFile file = aValue as IFormFile;
+                if (file != null)
+                {
+                    var fileName = file.FileName;
+                    return AllowedExtensions.Any(y => fileName.EndsWith(y));
+                }
+                return true;
             }
-            return true;
+            return false;
         }
     }
 }

@@ -19,7 +19,14 @@ namespace csye6225
     {
         public Startup(IConfiguration configuration)
         {
-            Configuration = configuration;
+            //Configuration = configuration;
+            var env = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
+            Configuration = new ConfigurationBuilder()
+                .SetBasePath(AppContext.BaseDirectory)
+                .AddJsonFile($"appsettings.json", false, true)
+                .AddJsonFile($"appsettings.{env}.json", true, true)
+                .AddEnvironmentVariables()
+                .Build();
         }
 
         public IConfiguration Configuration { get; }
@@ -29,19 +36,16 @@ namespace csye6225
         {
             //services.AddCors();
             services.AddControllers();
-            services.Configure<Parameters>(Configuration.GetSection("Config"));
             //services.AddEntityFrameworkNpgsql();
 
             //services.AddScoped<IPasswordHasher<ApplicationUser>, BCryptPasswordHasher<ApplicationUser>>();
 
             //services.AddIdentity<ApplicationUser, IdentityRole>();
-            // var connectionString = Configuration.GetConnectionString("DBConnection");
-            // services.AddDbContext<dbContext> (
-            //     options => options.UseNpgsql(connectionString)
-            // );
+            services.AddDbContext<dbContext> (
+                options => options.UseNpgsql(Configuration.GetConnectionString("DBConnection"))
+            );
 
-            services.AddDbContext<dbContext>();
-            
+            //services.AddDbContext<dbContext>();
             //services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Latest);
 
             services.AddMvc(options => { 

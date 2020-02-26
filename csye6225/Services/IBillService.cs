@@ -26,13 +26,11 @@ namespace csye6225.Services
     {
         private dbContext _context;
         private readonly IMapper _mapper;
-        private IOptions<Parameters> _options;
 
-        public BillService(dbContext context, IMapper mapper, IOptions<Parameters> options) 
+        public BillService(dbContext context, IMapper mapper) 
         {
             _context = context;
             _mapper = mapper;
-            _options = options;
         }
 
         public async Task<BillResponse> Create(string ownerId, BillCreateRequest req)
@@ -51,12 +49,8 @@ namespace csye6225.Services
                 payment_status = (int)((PaymentStatusEnum) Enum.Parse(typeof(PaymentStatusEnum), req.payment_status))
             };
 
-            using (var _context = new dbContext(_options)) 
-            {
-                _context.Bill.Add(bill); 
-                await _context.SaveChangesAsync();
-            }
-
+            _context.Bill.Add(bill); 
+            await _context.SaveChangesAsync();
             return _mapper.Map<BillResponse>(bill);
         }
 
@@ -66,23 +60,18 @@ namespace csye6225.Services
                 _context.Bill.Include(b => b.attachment).Where(x => x.owner_id.ToString() == ownerId)
                 .OrderByDescending(o => o.updated_ts)
              );
-            
             return _mapper.Map<IEnumerable<BillResponse>>(bills);
         }
 
         public async Task<bool> DeleteUserBill(string ownerId, string billId)
         {
-            using (var _context = new dbContext(_options)) 
-            {
-                var bill = await Task.Run(() => _context.Bill.FirstOrDefault(x => x.owner_id.ToString() == ownerId && x.id.ToString() == billId));
+            var bill = await Task.Run(() => _context.Bill.FirstOrDefault(x => x.owner_id.ToString() == ownerId && x.id.ToString() == billId));
 
-                if(bill == null)
-                    return false;
-            
-                _context.Bill.Remove(bill); 
-                await _context.SaveChangesAsync();
-            }
-
+            if(bill == null)
+                return false;
+        
+            _context.Bill.Remove(bill); 
+            await _context.SaveChangesAsync();
             return true;
         }
 
@@ -93,79 +82,64 @@ namespace csye6225.Services
                     x => x.owner_id.ToString() == ownerId && x.id.ToString() == billId
                 )
             );
-            
             return _mapper.Map<BillResponse>(bill);
         }
 
         public async Task<BillResponse> Update(string ownerId, string billId, BillUpdateRequest req)
         {
-            using(_context = new dbContext(_options))
-            {
-                var bill = await Task.Run(() => _context.Bill.FirstOrDefault(x => x.owner_id.ToString() == ownerId && x.id.ToString() == billId));
+            var bill = await Task.Run(() => _context.Bill.FirstOrDefault(x => x.owner_id.ToString() == ownerId && x.id.ToString() == billId));
 
-                if (bill == null)
-                    return null;
+            if (bill == null)
+                return null;
 
-                bill.updated_ts = DateTime.Now;
-                bill.vendor = req.vendor;
-                bill.bill_date = Convert.ToDateTime(req.bill_date).Date;
-                bill.due_date = Convert.ToDateTime(req.due_date).Date;
-                bill.amount_due = req.amount_due;
-                bill.categories = string.Join(',', req.categories);
-                bill.payment_status = (int)((PaymentStatusEnum) Enum.Parse(typeof(PaymentStatusEnum), req.payment_status));
-                await _context.SaveChangesAsync();
-                return _mapper.Map<BillResponse>(bill);
-            }
+            bill.updated_ts = DateTime.Now;
+            bill.vendor = req.vendor;
+            bill.bill_date = Convert.ToDateTime(req.bill_date).Date;
+            bill.due_date = Convert.ToDateTime(req.due_date).Date;
+            bill.amount_due = req.amount_due;
+            bill.categories = string.Join(',', req.categories);
+            bill.payment_status = (int)((PaymentStatusEnum) Enum.Parse(typeof(PaymentStatusEnum), req.payment_status));
+            await _context.SaveChangesAsync();
+            return _mapper.Map<BillResponse>(bill);
         }
 
         public async Task<FileResponse> StoreAttachment(string billId, FileInfo fileInfo)
         {
-            using(_context = new dbContext(_options))
-            {
-                var bill = await Task.Run(() => _context.Bill.FirstOrDefault(x => x.id.ToString() == billId));
-                if (bill == null)
-                    return null;
+            var bill = await Task.Run(() => _context.Bill.FirstOrDefault(x => x.id.ToString() == billId));
+            if (bill == null)
+                return null;
 
-                var file = await Task.Run(() => _context.File.FirstOrDefault(x => x.bill_id.ToString() == bill.id.ToString()));
-                if(file == null) {
-                    file  = new FileModel();
-                    file.id = Guid.NewGuid();
-                    file.bill_id = bill.id;
-                    _context.File.Add(file);
-                    bill.attachment = file;
-                }
-
-                var rootDir = AppContext.BaseDirectory.Substring(0, AppContext.BaseDirectory.LastIndexOf("/bin"));
-                file.url = Path.GetRelativePath(rootDir, fileInfo.FullName);
-                file.file_name = fileInfo.Name;
-                file.file_ext = fileInfo.Extension;
-                file.file_size = fileInfo.Length;
-                file.hash_code = fileInfo.GetHashCode();
-                file.upload_date = DateTime.Now;
-
-                await _context.SaveChangesAsync();
-                return _mapper.Map<FileResponse>(file);
+            var file = await Task.Run(() => _context.File.FirstOrDefault(x => x.bill_id.ToString() == bill.id.ToString()));
+            if(file == null) {
+                file  = new FileModel();
+                file.id = Guid.NewGuid();
+                file.bill_id = bill.id;
+                _context.File.Add(file);
+                bill.attachment = file;
             }
+
+            var rootDir = AppContext.BaseDirectory.Substring(0, AppContext.BaseDirectory.LastIndexOf("/bin"));
+            file.url = Path.GetRelativePath(rootDir, fileInfo.FullName);
+            file.file_name = fileInfo.Name;
+            file.file_ext = fileInfo.Extension;
+            file.file_size = fileInfo.Length;
+            file.hash_code = fileInfo.GetHashCode();
+            file.upload_date = DateTime.Now;
+
+            await _context.SaveChangesAsync();
+            return _mapper.Map<FileResponse>(file);
         }
 
         public async Task<bool> DeleteAttachment(string billId)
         {
-            using(_context = new dbContext(_options))
-            {
-                // var bill = await Task.Run(() => _context.Bill.FirstOrDefault(x => x.id.ToString() == billId));
-                // if (bill == null)
-                //     return false;
-
-                var file = await Task.Run(() => _context.File.FirstOrDefault(x => x.bill_id.ToString() == billId));
-                if(file == null) {
-                   return false;
-                }
-
-                //bill.attachment = null;
-                _context.File.Remove(file); 
-                await _context.SaveChangesAsync();
-                return true;
+            var file = await Task.Run(() => _context.File.FirstOrDefault(x => x.bill_id.ToString() == billId));
+            if(file == null) {
+                return false;
             }
+
+            _context.File.Remove(file); 
+            await _context.SaveChangesAsync();
+            return true;
         }
     }
 }
