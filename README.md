@@ -24,9 +24,9 @@ A step by step series of commands that tell you how to get a development env ins
 ```
 ~$ dotnet
 ```
-3. Install the **Dotnet Entity Framework** by running the below command in the terminal. This commands installs the framework globally.
+3. Restore the **Dotnet Entity Framework** by running the below command in the terminal. This commands restores the framework locally. Run the command at the location of .config folder where the manifest file is.
 ```
-~$ dotnet tool install --global dotnet-ef 
+~$ dotnet tool restore
 ```
 4. Install **PostgreSQL** by running the following command in the terminal. Set up a user and a database for the application configuration. We will modify the configuration file in the step below.
 ```
@@ -50,7 +50,7 @@ A step by step series of commands that tell you how to get a development environ
 ```
 4. Update the database with the models by running the following command in the terminal.
 ```
-~$/webapp/csye6225 dotnet-ef database update
+~$/webapp/csye6225 dotnet ef database update
 ```
 
 ## Running the tests
@@ -62,20 +62,10 @@ A step by step series of commands that tell you how to get a development environ
 ```
 3. Check the database, two new users should be created in the **Account** table.
 
-
-## Deployment
-TBD
-
-## Contributing
-TBD
-
-## Versioning
-TBD
-
 ## Authors
 
 * **Sajal Sood** - *Initial work* - [Sajal Sood](https://github.com/SajalSood)
 
 ## License
-TBD
+[MIT](https://choosealicense.com/licenses/mit/)
 
