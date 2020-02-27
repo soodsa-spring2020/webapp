@@ -8,6 +8,7 @@ using csye6225.Models;
 using System.IO;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
+using Amazon.S3.Model;
 
 namespace csye6225.Services
 {
@@ -18,8 +19,8 @@ namespace csye6225.Services
         Task<bool> DeleteUserBill(string ownerId, string billId);
         Task<BillResponse> GetBill(string ownerId, string billId);
         Task<BillResponse> Update(string ownerId, string billId, BillUpdateRequest req);
-        Task<FileResponse> StoreAttachment(string billId, FileInfo fileInfo);
-        Task<bool> DeleteAttachment(string billId);
+        Task<FileResponse> StoreAttachment(string billId, GetObjectResponse fileInfo);
+        Task<string> DeleteAttachment(string billId);
     }
 
     public class BillService : IBillService
@@ -103,7 +104,7 @@ namespace csye6225.Services
             return _mapper.Map<BillResponse>(bill);
         }
 
-        public async Task<FileResponse> StoreAttachment(string billId, FileInfo fileInfo)
+        public async Task<FileResponse> StoreAttachment(string billId, GetObjectResponse fileInfo)
         {
             var bill = await Task.Run(() => _context.Bill.FirstOrDefault(x => x.id.ToString() == billId));
             if (bill == null)
@@ -118,11 +119,12 @@ namespace csye6225.Services
                 bill.attachment = file;
             }
 
-            var rootDir = AppContext.BaseDirectory.Substring(0, AppContext.BaseDirectory.LastIndexOf("/bin"));
-            file.url = Path.GetRelativePath(rootDir, fileInfo.FullName);
-            file.file_name = fileInfo.Name;
-            file.file_ext = fileInfo.Extension;
-            file.file_size = fileInfo.Length;
+            // var rootDir = AppContext.BaseDirectory.Substring(0, AppContext.BaseDirectory.LastIndexOf("/bin"));
+            // file.url = Path.GetRelativePath(rootDir, fileInfo.FullName);
+            file.url = String.Format("{0}/{1}/{2}", "bills", billId, fileInfo.Key);
+            file.file_name = fileInfo.Key;
+            file.file_ext = Path.GetExtension(fileInfo.Key);
+            file.file_size = fileInfo.ContentLength;
             file.hash_code = fileInfo.GetHashCode();
             file.upload_date = DateTime.Now;
 
@@ -130,16 +132,18 @@ namespace csye6225.Services
             return _mapper.Map<FileResponse>(file);
         }
 
-        public async Task<bool> DeleteAttachment(string billId)
+        public async Task<string> DeleteAttachment(string billId)
         {
+            var fileName = string.Empty;
             var file = await Task.Run(() => _context.File.FirstOrDefault(x => x.bill_id.ToString() == billId));
             if(file == null) {
-                return false;
+                return fileName;
             }
 
+            fileName = file.file_name;
             _context.File.Remove(file); 
             await _context.SaveChangesAsync();
-            return true;
+            return fileName;
         }
     }
 }

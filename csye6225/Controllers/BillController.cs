@@ -1,7 +1,7 @@
 using System.IO;
 using System.Security.Claims;
 using System.Threading.Tasks;
-using csye6225.Helpers;
+using Amazon.S3.Model;
 using csye6225.Models;
 using csye6225.Services;
 using Microsoft.AspNetCore.Authorization;
@@ -12,12 +12,13 @@ namespace csye6225.Controllers
     [ApiController]
     public class BillController : ControllerBase
     {
-        
         private IBillService _billService;
+        private IFileService _fileService;
       
-        public BillController(IBillService billService) 
+        public BillController(IBillService billService, IFileService fileService) 
         {
             _billService = billService;
+            _fileService = fileService;
         } 
 
         [Authorize]
@@ -55,16 +56,15 @@ namespace csye6225.Controllers
         {    
             var ownerId = this.User.FindFirstValue(ClaimTypes.NameIdentifier);
 
-            //Remove file from the local storage
-            FileHelper.DeleteBillAttachment(id);
-
             //Delete file information from the database
-            var isDeleted = await _billService.DeleteAttachment(id);
-            isDeleted = await _billService.DeleteUserBill(ownerId, id);
-
+            var fileName = await _billService.DeleteAttachment(id);
+            var isDeleted = await _billService.DeleteUserBill(ownerId, id);
             if (!isDeleted)
                 return NotFound(new { message = "Bill not found." });
 
+            //Remove file from the storage
+            if(!string.IsNullOrEmpty(fileName))
+                await _fileService.DeleteBillAttachment(id,fileName);
             return NoContent();
         }
 
@@ -81,7 +81,6 @@ namespace csye6225.Controllers
 
             return Ok(bill);
         }
-
 
         [Authorize]
         [Route("v1/bill/{id}")] 
@@ -110,13 +109,12 @@ namespace csye6225.Controllers
                 return NotFound(new { message = "Bill not found." });
             
             //Upload the file 
-            var filePath = await FileHelper.UploadBillAttachment(id, req.file);
-            if(string.IsNullOrEmpty(filePath)) {
+            GetObjectResponse fileInfo = await _fileService.UploadBillAttachment(id, req.file);
+            if(fileInfo == null) {
                 return BadRequest(new { message = "Bill attachment could not be uploaded." });
             }
 
             //File Uploaded Succesfully, Update the database
-            FileInfo fileInfo = new FileInfo(filePath);
             var attachment = await _billService.StoreAttachment(id, fileInfo);
             if (attachment == null)
                 return BadRequest(new { message = "Error saving attachment information." });
@@ -155,13 +153,13 @@ namespace csye6225.Controllers
             if(bill.attachment == null || bill.attachment.id.ToString() != fileId)
                 return NotFound(new { message = "Attachment not found." });
 
-            //Remove file from the local storage
-            FileHelper.DeleteBillAttachment(billId);
-
             //Delete file information from the database
-            var isDeleted = await _billService.DeleteAttachment(billId);
-            if(!isDeleted)
+            var fileName = await _billService.DeleteAttachment(billId);
+            if(string.IsNullOrEmpty(fileName))
                 return BadRequest(new { message = "Error deleting attachment information." });
+            
+            //Remove file from the local storage
+            await _fileService.DeleteBillAttachment(billId, fileName);
 
             return NoContent();
         }

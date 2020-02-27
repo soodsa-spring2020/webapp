@@ -6,7 +6,6 @@ using AutoMapper;
 using csye6225.Helpers;
 using csye6225.Models;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Options;
 
 namespace csye6225.Services
 {
