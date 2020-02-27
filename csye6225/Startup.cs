@@ -12,6 +12,7 @@ using csye6225.Filters;
 using AutoMapper;
 using System;
 using Microsoft.Extensions.Options;
+using Amazon.S3;
 
 namespace csye6225
 {
@@ -19,7 +20,6 @@ namespace csye6225
     {
         public Startup(IConfiguration configuration)
         {
-            //Configuration = configuration;
             var env = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
             Configuration = new ConfigurationBuilder()
                 .SetBasePath(AppContext.BaseDirectory)
@@ -34,20 +34,13 @@ namespace csye6225
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            //services.AddCors();
             services.AddControllers();
-            //services.AddEntityFrameworkNpgsql();
-
-            //services.AddScoped<IPasswordHasher<ApplicationUser>, BCryptPasswordHasher<ApplicationUser>>();
-
-            //services.AddIdentity<ApplicationUser, IdentityRole>();
             services.AddDbContext<dbContext> (
                 options => options.UseNpgsql(Configuration.GetConnectionString("DBConnection"))
             );
 
-            //services.AddDbContext<dbContext>();
-            //services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Latest);
-
+            // Add our Config object so it can be injected
+            services.Configure<Parameters>(Configuration.GetSection("S3"));
             services.AddMvc(options => { 
                 options.Filters.Add(typeof(ModelValidationFilterAttribute)); 
             });
@@ -59,9 +52,11 @@ namespace csye6225
             services.AddAutoMapper(typeof(Startup));
 
             // configure DI for application services
-
             services.AddScoped<IUserService, UserService>();
             services.AddScoped<IBillService, BillService>();
+            services.AddScoped<IFileService, FileService>();
+            services.AddAWSService<IAmazonS3>();
+
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
