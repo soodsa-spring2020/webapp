@@ -38,7 +38,7 @@ jobs:
           command: dotnet ef database update --project=csye6225
       - run:
           name: "Run Tests"
-          command: dotnet test'
+          command: dotnet test
       - run:
           name: "Installing Unzip Package"
           command: sudo apt install unzip
