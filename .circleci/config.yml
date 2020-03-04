@@ -41,7 +41,7 @@ jobs:
           command: dotnet test
       - run:
           name: "Installing Unzip Package"
-          command: sudo apt install unzip
+          command: apt-get install unzip
       - run:
           name: "Download AWS CLI"
           command: curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip" 
@@ -50,7 +50,7 @@ jobs:
           command: unzip awscliv2.zip
       - run:
           name: "Install AWS CLI"
-          command: sudo ./aws/install  
+          command: ./aws/install  
 workflows:
   version: 2
   build_deploy:
@@ -59,7 +59,7 @@ workflows:
           filters:
             branches:
               only:
-                - assignment7
+                - a7
   pr-check:
     jobs:
       - pr_check
