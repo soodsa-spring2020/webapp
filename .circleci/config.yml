@@ -62,4 +62,8 @@ workflows:
                 - a7
   pr-check:
     jobs:
-      - pr_check
+      - pr_check:
+          filters:
+            branches:
+              only:
+                - master
