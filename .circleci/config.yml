@@ -40,6 +40,9 @@ jobs:
           name: "Run Tests"
           command: dotnet test
       - run:
+          name: "Update Packages"
+          command: apt-get update
+      - run:
           name: "Installing Unzip Package"
           command: apt-get install unzip
       - run:
