@@ -68,7 +68,7 @@ jobs:
           command: cd release && zip -r ../webapp.zip *
       - run:
           name: "Upload to S3"
-          command: aws s3 cp ../webapp.zip s3://${S3_BUCKET_NAME}
+          command: cd .. && aws s3 cp webapp.zip s3://${S3_BUCKET_NAME}
 workflows:
   version: 2
   build_deploy:

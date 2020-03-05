@@ -1,7 +1,6 @@
 #!/bin/bash
 
-unzip webapp_144.zip 
-cd release
+unzip webapp.zip 
 dotnet tool restore
-dotnet ef database update --project csye6225
-dotnet run --project csye6225
+dotnet ef database update csye6225.dll
+dotnet run csye6225.dll
