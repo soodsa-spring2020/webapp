@@ -5,3 +5,5 @@
 */tmp
 */appsettings.*.json
 */Properties
+*.zip
+release
