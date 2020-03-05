@@ -58,6 +58,12 @@ jobs:
           name: "Create Application Package"
           command: dotnet publish -c Release --output release csye6225.sln
       - run:
+          name: "Update Packages"
+          command: apt-get update
+      - run:
+          name: "Install Zip Packages"
+          command: apt-get install zip
+      - run:
           name: "Compress Package"
           command: zip -r webapp.zip release
       - run:
