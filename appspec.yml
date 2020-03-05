@@ -2,7 +2,7 @@ version: 0.0
 os: linux
 
 files:
-  - source: s3://codedeploy.sajalsood.me/webapp_145.zip
+  - source: s3://codedeploy.sajalsood.me/webapp.zip
     destination: /home/ubuntu
 
 hooks:
