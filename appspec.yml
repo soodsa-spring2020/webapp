@@ -2,9 +2,15 @@ version: 0.0
 os: linux
 
 files:
-  - source: s3://codedeploy.sajalsood.me/webapp.zip
-    destination: /home/ubuntu
+  - source: /
+    destination: /home/ubuntu/webapp
 
 hooks:
-  BeforeInstall:
-    - location: scripts/unzipdatabundle.sh
+  AfterInstall:
+    - location: scripts/restoretools.sh
+      timeout: 3600
+    - location: scripts/runmigrations.sh
+      timeout: 3600
+  ApplicationStart:
+    - location: scripts/runapplication.sh
+      timeout: 3600
