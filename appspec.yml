@@ -8,9 +8,8 @@ files:
 hooks:
   AfterInstall:
     - location: scripts/restoretools.sh
-      timeout: 3600
+      timeout: 180
     - location: scripts/runmigrations.sh
-      timeout: 3600
+      timeout: 180
   ApplicationStart:
     - location: scripts/runapplication.sh
-      timeout: 3600
