@@ -74,8 +74,4 @@ workflows:
                 - master
   pr-check:
     jobs:
-      - pr_check:
-          filters:
-            branches:
-              only:
-                - master
+      - pr_check
