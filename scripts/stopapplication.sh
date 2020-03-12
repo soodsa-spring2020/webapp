@@ -1,3 +1,6 @@
 #!/bin/bash
 
-systemctl stop dotnetcore
+if (systemctl -q is-active dotnetcore.service)
+    then
+    systemctl stop dotnetcore
+fi
