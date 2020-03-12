@@ -16,8 +16,9 @@ if [ ! -f /etc/systemd/system/dotnetcore.service ]; then
     echo "[Install]" >> /etc/systemd/system/dotnetcore.service
     echo "WantedBy=multi-user.target" >> /etc/systemd/system/dotnetcore.service
 fi
-systemctl start dotnetcore
-systemctl enable dotnetcore
+systemctl start dotnetcore.service
+systemctl enable dotnetcore.service
+
 
 
 
