@@ -1,35 +1,10 @@
 version: 2.1
 
 jobs:
-  build:
-    description: Build application
-    docker:
-      - image: mcr.microsoft.com/dotnet/core/sdk:3.0
-        environment:
-          DOTNET_SKIP_FIRST_TIME_EXPERIENCE: 1
-          DOTNET_CLI_TELEMETRY_OPTOUT: 1
-      - image: circleci/postgres:9.6.5-alpine-ram
-    steps:
-      - checkout
-      - run:
-          name: "Build Application"
-          command: dotnet build
-      - run:
-          name: "Setup Entity Framework"
-          command: dotnet tool restore
-      - run:
-          name: "Update Database"
-          command: dotnet ef database update --project=csye6225
-      - run:
-          name: "Run Tests"
-          command: dotnet test
   pr_check:
     description: Pull Request Check
     docker:
       - image: mcr.microsoft.com/dotnet/core/sdk:3.0
-        environment:
-          DOTNET_SKIP_FIRST_TIME_EXPERIENCE: 1
-          DOTNET_CLI_TELEMETRY_OPTOUT: 1
       - image: circleci/postgres:9.6.5-alpine-ram
     steps:
       - checkout
@@ -45,15 +20,62 @@ jobs:
       - run:
           name: "Run Tests"
           command: dotnet test
+  build_deploy:
+    description: Build and Deploy application
+    docker:
+      - image: mcr.microsoft.com/dotnet/core/sdk:3.0
+      - image: circleci/postgres:9.6.5-alpine-ram
+    steps:
+      - checkout
+      - run:
+          name: "Build Application"
+          command: dotnet build
+      - run:
+          name: "Setup Entity Framework"
+          command: dotnet tool restore
+      - run:
+          name: "Update Database"
+          command: dotnet ef database update --project=csye6225
+      - run:
+          name: "Run Tests"
+          command: dotnet test
+      - run:
+          name: "Update Packages"
+          command: apt-get update
+      - run:
+          name: "Installing Unzip Package"
+          command: apt-get install zip unzip
+      - run:
+          name: "Download AWS CLI"
+          command: curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip" 
+      - run:
+          name: "Unzip AWS CLI Package"
+          command: unzip awscliv2.zip
+      - run:
+          name: "Install AWS CLI"
+          command: ./aws/install
+      - run:
+          name: "Clean Application"
+          command: rm -rf */bin && rm -rf */obj
+      - run:
+          name: "Create Application Package"
+          command: zip -r webapp.zip .
+      - run:
+          name: "Upload to S3"
+          command: aws s3 cp webapp.zip s3://${S3_BUCKET_NAME}
 workflows:
   version: 2
   build_deploy:
     jobs:
-      - build:
+      - build_deploy:
           filters:
             branches:
               only:
                 - master
   pr-check:
     jobs:
-      - pr_check
+      - pr_check:
+          filters:
+            branches:
+              only:
+                - master
