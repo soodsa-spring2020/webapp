@@ -12,15 +12,15 @@ namespace csye6225
         {
             CreateWebHostBuilder(args).Build().Run();
 
-            var host = CreateWebHostBuilder(args).Build();
+            // var host = CreateWebHostBuilder(args).Build();
 
-            using (var scope = host.Services.CreateScope())
-            {
-                var db = scope.ServiceProvider.GetService<DbContext>();
-                db.Database.Migrate();
-            }
+            // using (var scope = host.Services.CreateScope())
+            // {
+            //     var db = scope.ServiceProvider.GetService<DbContext>();
+            //     db.Database.Migrate();
+            // }
 
-            host.Run();
+            // host.Run();
         }
 
         public static IWebHostBuilder CreateWebHostBuilder(string[] args) =>

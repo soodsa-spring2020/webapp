@@ -1,3 +1,4 @@
 #!/bin/bash
 
-sudo dotnet run --project csye6225
+cd ./deployment-root/$DEPLOYMENT_GROUP_ID/$DEPLOYMENT_ID/deployment-archive/
+dotnet run --project csye6225

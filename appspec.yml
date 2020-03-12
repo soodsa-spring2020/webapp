@@ -6,10 +6,18 @@ files:
     destination: /home/ubuntu/webapp
 
 hooks:
+  ApplicationStop:
+    - location: scripts/stopapplication.sh
+      timeout: 30
+      runas: root
   AfterInstall:
     - location: scripts/restoretools.sh
       timeout: 180
+      runas: root
     - location: scripts/runmigrations.sh
       timeout: 180
+      runas: root
   ApplicationStart:
     - location: scripts/runapplication.sh
+      timeout: 300
+      runas: root

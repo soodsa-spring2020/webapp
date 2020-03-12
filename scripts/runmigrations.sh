@@ -1,3 +1,4 @@
 #!/bin/bash
 
-sudo dotnet ef database update --project csye6225
+cd ./deployment-root/$DEPLOYMENT_GROUP_ID/$DEPLOYMENT_ID/deployment-archive/
+dotnet ef database update --project csye6225
