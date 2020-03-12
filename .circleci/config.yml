@@ -65,7 +65,7 @@ jobs:
           command: aws s3 cp webapp.zip s3://${S3_BUCKET_NAME}
       - run:
           name: "Deploy Artifact"
-          command: aws deploy create-deployment --application-name ${DEPLOY_APP_NAME} --deployment-config-name ${DEPLOY_CONFIG_NAME} --deployment-group-name ${DEPLOY_GROUP_NAME} --s3-location bucket=${S3_BUCKET_NAME},bundleType=zip,key=${DEPLOY_APP_KEY}
+          command: aws deploy create-deployment --application-name ${DEPLOY_APP_NAME} --deployment-config-name ${DEPLOY_CONFIG_NAME} --deployment-group-name ${DEPLOY_GROUP_NAME} --s3-location bucket=${S3_BUCKET_NAME},bundleType=zip,key=${DEPLOY_APP_KEY} > output.txt
 workflows:
   version: 2
   build_deploy:
