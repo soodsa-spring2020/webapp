@@ -2,5 +2,5 @@
 
 if (systemctl -q is-active dotnetcore.service)
     then
-    systemctl stop dotnetcore.service
+    systemctl stop dotnetcore
 fi
