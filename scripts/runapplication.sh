@@ -18,9 +18,3 @@ if [ ! -f /etc/systemd/system/dotnetcore.service ]; then
     systemctl start dotnetcore
 fi
 systemctl restart dotnetcore
-
-
-
-
-
-
