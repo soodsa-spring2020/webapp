@@ -2,6 +2,7 @@
 
 cd /home/ubuntu/webapp/
 #dotnet publish -c Release
+dotnet build
 if [ ! -f /etc/systemd/system/dotnetcore.service ]; then
     touch /etc/systemd/system/dotnetcore.service
     echo "[Unit]" > /etc/systemd/system/dotnetcore.service
