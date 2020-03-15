@@ -12,7 +12,7 @@ if [ ! -f /etc/systemd/system/dotnetcore.service ]; then
     echo "ExecStart=/usr/bin/dotnet run --project /home/ubuntu/webapp/csye6225/" >> /etc/systemd/system/dotnetcore.service
     echo "WorkingDirectory=/home/ubuntu/webapp/" >> /etc/systemd/system/dotnetcore.service
     echo "User=ubuntu" >> /etc/systemd/system/dotnetcore.service
-    echo "Group=dotnetuser" >> /etc/systemd/system/dotnetcore.service
+    echo "Group=ubuntu" >> /etc/systemd/system/dotnetcore.service
     echo "PrivateTemp=true" >> /etc/systemd/system/dotnetcore.service
     echo "[Install]" >> /etc/systemd/system/dotnetcore.service
     echo "WantedBy=multi-user.target" >> /etc/systemd/system/dotnetcore.service
