@@ -1,6 +1,6 @@
 #!/bin/bash
 
-cd /home/ubuntu/webapp
+cd /home/ubuntu/webapp/
 dotnet publish -c Release
 if [ ! -f /etc/systemd/system/dotnetcore.service ]; then
     touch /etc/systemd/system/dotnetcore.service
