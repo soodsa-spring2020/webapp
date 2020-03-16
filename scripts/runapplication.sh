@@ -14,7 +14,7 @@ if [ ! -f /etc/systemd/system/dotnetcore.service ]; then
     echo "User=ubuntu" >> /etc/systemd/system/dotnetcore.service
     echo "Group=ubuntu" >> /etc/systemd/system/dotnetcore.service
     echo "PrivateTemp=true" >> /etc/systemd/system/dotnetcore.service
-    echo "Environment='ASPNETCORE_ENVIRONMENT=Production'" >> /etc/systemd/system/dotnetcore.service
+    echo "EnvironmentFile=/etc/environment" >> /etc/systemd/system/dotnetcore.service
     echo "[Install]" >> /etc/systemd/system/dotnetcore.service
     echo "WantedBy=multi-user.target" >> /etc/systemd/system/dotnetcore.service
     systemctl start dotnetcore
