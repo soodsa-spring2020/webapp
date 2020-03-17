@@ -2,6 +2,7 @@
 
 cd /home/ubuntu/webapp/
 dotnet publish -c Release
+mkdir -m 777 /home/ubuntu/webapp/csye6225/tmp/
 if [ ! -f /etc/systemd/system/dotnetcore.service ]; then
     touch /etc/systemd/system/dotnetcore.service
     echo "[Unit]" > /etc/systemd/system/dotnetcore.service
