@@ -70,9 +70,8 @@ namespace UnitTests
             mockMapper.Setup(x => x.Map<AccountResponse>(It.IsAny<AccountModel>())).Returns(expected);    
 
             var service = new UserService(mockDomain.Object, mockMapper.Object);
-            var loggerMock = new Mock<ILogger<UserController>>();
 
-            var controller = new UserController(service, loggerMock.Object);
+            var controller = new UserController(service);
             var actionResult = await controller.Create(req);
             
             _console.WriteLine("CreateUsers_UnitTest {0}", actionResult);

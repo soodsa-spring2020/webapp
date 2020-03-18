@@ -4,7 +4,6 @@ using csye6225.Models;
 using csye6225.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
 
 namespace csye6225.Controllers
 {
@@ -13,12 +12,10 @@ namespace csye6225.Controllers
     public class UserController : ControllerBase
     {
         private IUserService _userService;
-        private readonly ILogger _logger;
       
-        public UserController(IUserService userService, ILogger<UserController> logger) 
+        public UserController(IUserService userService) 
         {
             _userService = userService;
-            _logger = logger;
         } 
 
         [HttpGet] 
@@ -32,7 +29,6 @@ namespace csye6225.Controllers
         [HttpGet("self")] 
         public async Task<IActionResult> Get() 
         {    
-            _logger.LogInformation("Get User API Called");
             var id = this.User.FindFirstValue(ClaimTypes.NameIdentifier);
             var user = await _userService.Self(id);
 
