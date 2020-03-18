@@ -38,7 +38,7 @@ namespace csye6225.Services
                     {
                         new MetricDatum
                         {
-                            MetricName = "Http Time",
+                            MetricName = "ExecutionTime",
                             Value = stopWatch.ElapsedMilliseconds,
                             Unit = StandardUnit.Milliseconds,
                             TimestampUtc = DateTime.UtcNow,
