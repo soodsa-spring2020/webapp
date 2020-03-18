@@ -25,7 +25,6 @@ namespace csye6225.Services
         public async Task InvokeAsync(HttpContext context)
         {
             var stopWatch = new Stopwatch();
-            _logger.LogInformation(context.GetEndpoint().ToString());
             stopWatch.Start();
             await _next(context);
             stopWatch.Stop();
