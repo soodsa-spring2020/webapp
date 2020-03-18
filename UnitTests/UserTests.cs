@@ -24,13 +24,13 @@ using System.Diagnostics;
 using Xunit.Abstractions;
 using System.Reflection;
 using Microsoft.Extensions.Options;
+using Microsoft.Extensions.Logging;
 
 namespace UnitTests
 {
     public class UserTests
     {
         ITestOutputHelper _console;
-
         public UserTests(ITestOutputHelper console)
         {
             this._console = console;
@@ -70,7 +70,9 @@ namespace UnitTests
             mockMapper.Setup(x => x.Map<AccountResponse>(It.IsAny<AccountModel>())).Returns(expected);    
 
             var service = new UserService(mockDomain.Object, mockMapper.Object);
-            var controller = new UserController(service);
+            var loggerMock = new Mock<ILogger<UserController>>();
+
+            var controller = new UserController(service, loggerMock.Object);
             var actionResult = await controller.Create(req);
             
             _console.WriteLine("CreateUsers_UnitTest {0}", actionResult);
