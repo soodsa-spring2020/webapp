@@ -3,16 +3,16 @@ os: linux
 
 files:
   - source: /
-    destination: /home/ubuntu/webapp
+    destination: /home/ubuntu/webapp/
 
 hooks:
   ApplicationStop:
     - location: scripts/stopapplication.sh
-      timeout: 30
+      timeout: 180
       runas: root
   BeforeInstall:
     - location: scripts/beforeinstall.sh
-      timeout: 30
+      timeout: 180
       runas: root
   AfterInstall:
     - location: scripts/restoretools.sh
@@ -23,5 +23,5 @@ hooks:
       runas: root
   ApplicationStart:
     - location: scripts/runapplication.sh
-      timeout: 300
+      timeout: 180
       runas: root

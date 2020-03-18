@@ -16,8 +16,9 @@ namespace csye6225
             CreateWebHostBuilder(args).Build().Run();
         }
 
-        // public static IWebHostBuilder CreateWebHostBuilder(string[] args) =>
-        //    WebHost.CreateDefaultBuilder(args)
+        // public static IHostBuilder CreateHostBuilder(string[] args) =>
+        //    Host.CreateDefaultBuilder(args)
+        //     .UseSystemd()
         //     .UseKestrel()
         //     .UseUrls("http://*:5002;http://localhost:5001;http://localhost:5000")
         //     .UseStartup<Startup>();
@@ -27,6 +28,7 @@ namespace csye6225
             return WebHost.CreateDefaultBuilder(args)
                 .UseKestrel(options =>
                 {
+                    options.UseSystemd();
                     options.Limits.MaxConcurrentConnections = 100;
                     options.Limits.MaxConcurrentUpgradedConnections = 100;
                     options.Limits.MaxRequestBodySize = 10 * 1024;
@@ -34,7 +36,6 @@ namespace csye6225
                     new MinDataRate(bytesPerSecond: 100, gracePeriod: TimeSpan.FromSeconds(10));
                     options.Limits.MinResponseDataRate =
                     new MinDataRate(bytesPerSecond: 100, gracePeriod: TimeSpan.FromSeconds(10));
-                    options.Listen(IPAddress.Any, 80);
                     options.Listen(IPAddress.Any, 5002);
                 })
                 .UseStartup<Startup>();

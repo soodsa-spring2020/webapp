@@ -13,6 +13,8 @@ using AutoMapper;
 using System;
 using Microsoft.Extensions.Options;
 using Amazon.S3;
+using Microsoft.Extensions.Logging;
+using Amazon.CloudWatch;
 
 namespace csye6225
 {
@@ -55,12 +57,15 @@ namespace csye6225
             services.AddScoped<IUserService, UserService>();
             services.AddScoped<IBillService, BillService>();
             services.AddScoped<IFileService, FileService>();
+
+            //services.AddDefaultAWSOptions(Configuration.GetAWSOptions());
             services.AddAWSService<IAmazonS3>();
+            services.AddAWSService<IAmazonCloudWatch>();
 
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, ILoggerFactory loggerFactory)
         {
             if (env.IsDevelopment())
             {
@@ -70,6 +75,11 @@ namespace csye6225
             {
                 app.UseHsts();
             }
+
+            var config = this.Configuration.GetAWSLoggingConfigSection();
+            loggerFactory.AddAWSProvider(config);
+
+            app.UseMiddleware<CloudWatchExecutionTimeService>();
 
             app.UseCors(builder =>builder.AllowAnyHeader().AllowAnyOrigin().AllowAnyMethod());
             app.UseHttpsRedirection();
