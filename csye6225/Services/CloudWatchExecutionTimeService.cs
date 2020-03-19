@@ -53,11 +53,6 @@ namespace csye6225.Services
                                 {
                                     Name = "Path",
                                     Value = context.Request.Path
-                                },
-                                new Dimension
-                                {
-                                    Name = "Path",
-                                    Value = context.Request.Path
                                 }
                             }
                         }
