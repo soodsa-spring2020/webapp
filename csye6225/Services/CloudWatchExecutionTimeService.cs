@@ -15,6 +15,8 @@ namespace csye6225.Services
         private readonly ILogger _logger;
         private readonly IAmazonCloudWatch _amazonCloudWatch;
 
+        Dictionary<string, int> pathpairs = new Dictionary<string, int>();
+
         public CloudWatchExecutionTimeService(RequestDelegate next, ILogger<CloudWatchExecutionTimeService> logger, IAmazonCloudWatch amazonCloudWatch)
         {
             _next = next;
@@ -31,6 +33,13 @@ namespace csye6225.Services
 
             try
             {
+                if(pathpairs.ContainsKey(context.Request.Path)) {
+                    pathpairs[context.Request.Path]++;
+                }
+                else{
+                    pathpairs.Add(context.Request.Path, 1);
+                }
+
                 await _amazonCloudWatch.PutMetricDataAsync(new PutMetricDataRequest
                 {
                     Namespace = "CSYE6225-Webapp",
@@ -53,6 +62,16 @@ namespace csye6225.Services
                                 {
                                     Name = "Path",
                                     Value = context.Request.Path
+                                },
+                                new Dimension
+                                {
+                                    Name = "Timer",
+                                    Value = stopWatch.ElapsedMilliseconds.ToString()
+                                },
+                                 new Dimension
+                                {
+                                    Name = "Counter",
+                                    Value = pathpairs[context.Request.Path].ToString()
                                 }
                             }
                         }
