@@ -47,6 +47,51 @@ namespace csye6225.Services
                     {
                         new MetricDatum
                         {
+                            MetricName = "HttpCounter",
+                            Value = pathpairs[context.Request.Path],
+                            Unit = StandardUnit.None,
+                            TimestampUtc = DateTime.UtcNow,
+                            Dimensions = new List<Dimension>
+                            {
+                                new Dimension
+                                {
+                                    Name = "Method",
+                                    Value = context.Request.Method
+                                },
+                                new Dimension
+                                {
+                                    Name = "Path",
+                                    Value = context.Request.Path
+                                },
+                                new Dimension
+                                {
+                                    Name = "Counter",
+                                    Value = pathpairs[context.Request.Path].ToString()
+                                }
+                            }
+                        },
+                        new MetricDatum
+                        {
+                            MetricName = "DBTimer",
+                            Value = stopWatch.ElapsedMilliseconds,
+                            Unit = StandardUnit.Milliseconds,
+                            TimestampUtc = DateTime.UtcNow,
+                            Dimensions = new List<Dimension>
+                            {
+                                new Dimension
+                                {
+                                    Name = "Service",
+                                    Value = context.RequestServices.ToString()
+                                },
+                                new Dimension
+                                {
+                                    Name = "Timer",
+                                    Value = stopWatch.ElapsedMilliseconds.ToString()
+                                }
+                            }
+                        },
+                        new MetricDatum
+                        {
                             MetricName = "ExecutionTime",
                             Value = stopWatch.ElapsedMilliseconds,
                             Unit = StandardUnit.Milliseconds,
@@ -67,11 +112,6 @@ namespace csye6225.Services
                                 {
                                     Name = "Timer",
                                     Value = stopWatch.ElapsedMilliseconds.ToString()
-                                },
-                                 new Dimension
-                                {
-                                    Name = "Counter",
-                                    Value = pathpairs[context.Request.Path].ToString()
                                 }
                             }
                         }
