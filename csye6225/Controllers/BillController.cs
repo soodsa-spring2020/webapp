@@ -36,7 +36,7 @@ namespace csye6225.Controllers
         }
 
         [Authorize]
-        [Route("v1/bills")] 
+        [Route("v2/bills")] 
         [HttpGet] 
         public async Task<IActionResult> Bills() 
         {    
