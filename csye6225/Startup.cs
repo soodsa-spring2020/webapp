@@ -15,6 +15,7 @@ using Microsoft.Extensions.Options;
 using Amazon.S3;
 using Microsoft.Extensions.Logging;
 using Amazon.CloudWatch;
+using Microsoft.AspNetCore.HttpOverrides;
 
 namespace csye6225
 {
@@ -47,6 +48,14 @@ namespace csye6225
                 options.Filters.Add(typeof(ModelValidationFilterAttribute)); 
             });
 
+            services.Configure<ForwardedHeadersOptions>(options =>
+            {
+                options.ForwardedHeaders = 
+                    ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
+                options.KnownNetworks.Clear();
+                options.KnownProxies.Clear();
+            });
+
             // configure basic authentication 
             services.AddAuthentication("BasicAuthentication")
                 .AddScheme<AuthenticationSchemeOptions, BasicAuthenticationHandler>("BasicAuthentication", null);
@@ -67,22 +76,25 @@ namespace csye6225
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env, ILoggerFactory loggerFactory)
         {
+            app.UseForwardedHeaders();
+
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
             }
             else 
             {
-                app.UseHsts();
+                app.UseDeveloperExceptionPage();
+                //app.UseHsts();
             }
-
+         
             var config = this.Configuration.GetAWSLoggingConfigSection();
             loggerFactory.AddAWSProvider(config);
 
             app.UseMiddleware<CloudWatchExecutionTimeService>();
 
-            app.UseCors(builder =>builder.AllowAnyHeader().AllowAnyOrigin().AllowAnyMethod());
-            app.UseHttpsRedirection();
+            //app.UseCors(builder =>builder.AllowAnyHeader().AllowAnyOrigin().AllowAnyMethod());
+            //app.UseHttpsRedirection();
             app.UseRouting();
             app.UseAuthentication();
             app.UseAuthorization();

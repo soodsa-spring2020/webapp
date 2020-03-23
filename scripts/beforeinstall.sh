@@ -1,3 +1,3 @@
 #!/bin/bash
 
-rm -rf /home/ubuntu/webapp/
+rm -rf /var/www/webapp/

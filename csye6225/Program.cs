@@ -16,13 +16,6 @@ namespace csye6225
             CreateWebHostBuilder(args).Build().Run();
         }
 
-        // public static IHostBuilder CreateHostBuilder(string[] args) =>
-        //    Host.CreateDefaultBuilder(args)
-        //     .UseSystemd()
-        //     .UseKestrel()
-        //     .UseUrls("http://*:5002;http://localhost:5001;http://localhost:5000")
-        //     .UseStartup<Startup>();
-
         public static IWebHostBuilder CreateWebHostBuilder(string[] args)
         {
             return WebHost.CreateDefaultBuilder(args)
