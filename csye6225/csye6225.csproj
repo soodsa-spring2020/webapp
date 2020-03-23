@@ -5,6 +5,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+      <None Include="wwwroot\*" />
   </ItemGroup>
 
   <ItemGroup>
