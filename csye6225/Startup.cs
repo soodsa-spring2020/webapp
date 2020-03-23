@@ -16,6 +16,9 @@ using Amazon.S3;
 using Microsoft.Extensions.Logging;
 using Amazon.CloudWatch;
 using Microsoft.AspNetCore.HttpOverrides;
+using System.Collections.Generic;
+using Microsoft.Extensions.FileProviders;
+using System.IO;
 
 namespace csye6225
 {
@@ -76,6 +79,7 @@ namespace csye6225
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env, ILoggerFactory loggerFactory)
         {
+            app.UseFileServer();
             app.UseForwardedHeaders();
 
             if (env.IsDevelopment())
@@ -93,8 +97,6 @@ namespace csye6225
 
             app.UseMiddleware<CloudWatchExecutionTimeService>();
 
-            //app.UseCors(builder =>builder.AllowAnyHeader().AllowAnyOrigin().AllowAnyMethod());
-            //app.UseHttpsRedirection();
             app.UseRouting();
             app.UseAuthentication();
             app.UseAuthorization();
