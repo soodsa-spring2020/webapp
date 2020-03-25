@@ -19,6 +19,7 @@ using Microsoft.AspNetCore.HttpOverrides;
 using System.Collections.Generic;
 using Microsoft.Extensions.FileProviders;
 using System.IO;
+using JustEat.StatsD;
 
 namespace csye6225
 {
@@ -40,6 +41,7 @@ namespace csye6225
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddStatsD("localhost");
             services.AddControllers();
             services.AddDbContext<dbContext> (
                 options => options.UseNpgsql(Configuration.GetConnectionString("DBConnection"))
@@ -69,10 +71,11 @@ namespace csye6225
             services.AddScoped<IUserService, UserService>();
             services.AddScoped<IBillService, BillService>();
             services.AddScoped<IFileService, FileService>();
+            //services.AddSingleton<CloudWatchService>();
 
             //services.AddDefaultAWSOptions(Configuration.GetAWSOptions());
             services.AddAWSService<IAmazonS3>();
-            services.AddAWSService<IAmazonCloudWatch>();
+            //services.AddAWSService<IAmazonCloudWatch>();
 
         }
 
@@ -95,8 +98,8 @@ namespace csye6225
             var config = this.Configuration.GetAWSLoggingConfigSection();
             loggerFactory.AddAWSProvider(config);
 
-            app.UseMiddleware<CloudWatchExecutionTimeService>();
-
+            //app.UseMiddleware<CloudWatchExecutionTimeService>();
+            app.UseMiddleware<CloudWatchService>();
             app.UseRouting();
             app.UseAuthentication();
             app.UseAuthorization();
