@@ -71,9 +71,7 @@ namespace csye6225
             services.AddScoped<IUserService, UserService>();
             services.AddScoped<IBillService, BillService>();
             services.AddScoped<IFileService, FileService>();
-            //services.AddSingleton<CloudWatchService>();
 
-            //services.AddDefaultAWSOptions(Configuration.GetAWSOptions());
             services.AddAWSService<IAmazonS3>();
             services.AddAWSService<IAmazonCloudWatch>();
 
@@ -84,22 +82,11 @@ namespace csye6225
         {
             app.UseFileServer();
             app.UseForwardedHeaders();
+            app.UseDeveloperExceptionPage();
 
-            if (env.IsDevelopment())
-            {
-                app.UseDeveloperExceptionPage();
-            }
-            else 
-            {
-                app.UseDeveloperExceptionPage();
-                //app.UseHsts();
-            }
-         
-            var config = this.Configuration.GetAWSLoggingConfigSection();
-            loggerFactory.AddAWSProvider(config);
+            loggerFactory.AddAWSProvider(Configuration.GetAWSLoggingConfigSection());
 
             app.UseMiddleware<CloudWatchExecutionTimeService>();
-            //app.UseMiddleware<CloudWatchService>();
             app.UseRouting();
             app.UseAuthentication();
             app.UseAuthorization();
