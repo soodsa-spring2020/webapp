@@ -14,8 +14,8 @@ namespace csye6225.Services
         private readonly RequestDelegate _next;
         private readonly ILogger _logger;
         private readonly IAmazonCloudWatch _amazonCloudWatch;
-        Dictionary<string, int> pathpairs = new Dictionary<string, int>();
 
+        Dictionary<string, int> pathpairs = new Dictionary<string, int>();
 
         public CloudWatchExecutionTimeService(RequestDelegate next, ILogger<CloudWatchExecutionTimeService> logger, IAmazonCloudWatch amazonCloudWatch)
         {
@@ -40,32 +40,83 @@ namespace csye6225.Services
                     pathpairs.Add(context.Request.Path, 1);
                 }
 
-                var md1 = new MetricDatum() 
+                await _amazonCloudWatch.PutMetricDataAsync(new PutMetricDataRequest
                 {
-                    MetricName = context.Request.Path + " Counter",
-                    Value = pathpairs[context.Request.Path],
-                    Unit = StandardUnit.Count,
-                    TimestampUtc = DateTime.UtcNow
-                   
-                };
-
-                var md2 = new MetricDatum()
-                {
-                    MetricName = context.Request.Path + " Timer",
-                    Value = stopWatch.ElapsedMilliseconds,
-                    Unit = StandardUnit.Milliseconds,
-                    TimestampUtc = DateTime.UtcNow,
-                };
-
-                var metricDatum = new List<MetricDatum>() { md1, md2 };
-                var request = new PutMetricDataRequest() 
-                {
-                    Namespace = "CSYE6225-Webapp-1",
-                    MetricData = metricDatum
-                };
-
-                await _amazonCloudWatch.PutMetricDataAsync(request);
-
+                    Namespace = "CSYE6225-Webapp",
+                    MetricData = new List<MetricDatum>
+                    {
+                        new MetricDatum
+                        {
+                            MetricName = "HttpCounter",
+                            Value = pathpairs[context.Request.Path],
+                            Unit = StandardUnit.None,
+                            TimestampUtc = DateTime.UtcNow,
+                            Dimensions = new List<Dimension>
+                            {
+                                new Dimension
+                                {
+                                    Name = "Method",
+                                    Value = context.Request.Method
+                                },
+                                new Dimension
+                                {
+                                    Name = "Path",
+                                    Value = context.Request.Path
+                                },
+                                new Dimension
+                                {
+                                    Name = "Counter",
+                                    Value = pathpairs[context.Request.Path].ToString()
+                                }
+                            }
+                        },
+                        new MetricDatum
+                        {
+                            MetricName = "DBTimer",
+                            Value = stopWatch.ElapsedMilliseconds,
+                            Unit = StandardUnit.Milliseconds,
+                            TimestampUtc = DateTime.UtcNow,
+                            Dimensions = new List<Dimension>
+                            {
+                                new Dimension
+                                {
+                                    Name = "Service",
+                                    Value = context.RequestServices.ToString()
+                                },
+                                new Dimension
+                                {
+                                    Name = "Timer",
+                                    Value = stopWatch.ElapsedMilliseconds.ToString()
+                                }
+                            }
+                        },
+                        new MetricDatum
+                        {
+                            MetricName = "ExecutionTime",
+                            Value = stopWatch.ElapsedMilliseconds,
+                            Unit = StandardUnit.Milliseconds,
+                            TimestampUtc = DateTime.UtcNow,
+                            Dimensions = new List<Dimension>
+                            {
+                                new Dimension
+                                {
+                                    Name = "Method",
+                                    Value = context.Request.Method
+                                },
+                                new Dimension
+                                {
+                                    Name = "Path",
+                                    Value = context.Request.Path
+                                },
+                                new Dimension
+                                {
+                                    Name = "Timer",
+                                    Value = stopWatch.ElapsedMilliseconds.ToString()
+                                }
+                            }
+                        }
+                    }
+                });
             }
             catch (Exception ex)
             {
