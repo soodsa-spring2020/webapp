@@ -16,6 +16,7 @@ namespace csye6225.Services
     {
         Task<BillResponse> Create(string ownerId, BillCreateRequest req);
         Task<IEnumerable<BillResponse>> GetUserBills(string ownerId);
+        Task<IEnumerable<BillResponse>> GetUserDueBills(string ownerId, string days);
         Task<bool> DeleteUserBill(string ownerId, string billId);
         Task<BillResponse> GetBill(string ownerId, string billId);
         Task<BillResponse> Update(string ownerId, string billId, BillUpdateRequest req);
@@ -61,6 +62,17 @@ namespace csye6225.Services
                 _context.Bill.Include(b => b.attachment).Where(x => x.owner_id.ToString() == ownerId)
                 .OrderByDescending(o => o.updated_ts)
              );
+            return _mapper.Map<IEnumerable<BillResponse>>(bills);
+        }
+
+        public async Task<IEnumerable<BillResponse>> GetUserDueBills(string ownerId, string days)
+        {
+            double addDays = Double.Parse(days);
+            var bills = await Task.Run(() =>
+                _context.Bill.Where(x => x.owner_id.ToString() == ownerId)
+                .Where(x => x.due_date <= DateTime.Today.AddDays(addDays))
+                .OrderByDescending(o => o.updated_ts)
+            );
             return _mapper.Map<IEnumerable<BillResponse>>(bills);
         }
 
@@ -145,5 +157,6 @@ namespace csye6225.Services
             await _context.SaveChangesAsync();
             return fileName;
         }
+
     }
 }
