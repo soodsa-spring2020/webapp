@@ -76,6 +76,8 @@ namespace csye6225
             services.AddAWSService<IAmazonS3>();
             services.AddAWSService<IAmazonCloudWatch>();
 
+            services.AddHostedService<PollQueueWorker>();
+
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

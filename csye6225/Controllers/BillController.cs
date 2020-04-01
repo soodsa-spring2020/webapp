@@ -65,7 +65,7 @@ namespace csye6225.Controllers
             if (bills == null)
                 return BadRequest(new { message = "Network error. Bills could not be found." });
            
-            _notificationService.AddToNotificationQueue(ownerEmail, JsonSerializer.Serialize(bills));
+            _notificationService.AddToNotificationQueue(ownerEmail, bills);
             return Ok(bills);
         }
 
