@@ -27,12 +27,12 @@ namespace csye6225.Services
             while (!stopToken.IsCancellationRequested)
             {
                 Console.WriteLine("Polling Queue");
-                await PollQueue();
+                PollQueue();
                 await Task.Delay(10000, stopToken);
             }
         }
 
-        private async Task PollQueue()
+        private void PollQueue()
         {
             using (var sqs = new AmazonSQSClient())
             {
@@ -45,11 +45,11 @@ namespace csye6225.Services
                     WaitTimeSeconds = 5 
                 };
 
-                var receiveMessageResponse = await sqs.ReceiveMessageAsync(receiveMessageRequest);
+                var receiveMessageResponse = sqs.ReceiveMessageAsync(receiveMessageRequest);
 
-                if (receiveMessageResponse.Messages != null)
+                if (receiveMessageResponse.Result.Messages != null)
                 {
-                    foreach (var message in receiveMessageResponse.Messages)
+                    foreach (var message in receiveMessageResponse.Result.Messages)
                     {
                         Console.WriteLine("PollQueue " + message.MessageId);
                         BackgroundWorker worker = new BackgroundWorker();
@@ -64,7 +64,7 @@ namespace csye6225.Services
             }
         }
 
-        private async Task ProcessMessage(Message message)
+        private void ProcessMessage(Message message)
         {
             Console.WriteLine("ProcessMessage " + message.Body);
 
@@ -76,12 +76,12 @@ namespace csye6225.Services
                     Message = message.Body
                 };
 
-                await sns.PublishAsync(publishReq);
+                sns.PublishAsync(publishReq);
 
                 using (var sqs = new AmazonSQSClient())
                 {
                     var deleteRequest = new DeleteMessageRequest(_config.Value.SQS_URL, message.ReceiptHandle);
-                    await sqs.DeleteMessageAsync(deleteRequest);
+                    sqs.DeleteMessageAsync(deleteRequest);
                     Console.WriteLine("Processed message id: {0}", message.MessageId);
                 }
             }
