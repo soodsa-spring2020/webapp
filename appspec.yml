@@ -6,6 +6,10 @@ files:
     destination: /var/www/webapp/
 
 hooks:
+  ApplicationStop:
+    - location: scripts/stopapplication.sh
+      timeout: 180
+      runas: root
   BeforeInstall:
     - location: scripts/beforeinstall.sh
       timeout: 180

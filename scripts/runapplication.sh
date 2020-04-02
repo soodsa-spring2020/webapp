@@ -16,6 +16,5 @@ echo "EnvironmentFile=/etc/environment/" >> /etc/systemd/system/dotnetcore.servi
 echo "[Install]" >> /etc/systemd/system/dotnetcore.service
 echo "WantedBy=multi-user.target" >> /etc/systemd/system/dotnetcore.service
 systemctl daemon-reload
-systemctl reset-failed
 systemctl start dotnetcore
 systemctl enable dotnetcore
