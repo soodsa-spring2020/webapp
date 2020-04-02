@@ -70,7 +70,7 @@ namespace csye6225.Services
             double addDays = Double.Parse(days);
             var bills = await Task.Run(() =>
                 _context.Bill.Where(x => x.owner_id.ToString() == ownerId)
-                .Where(x => x.due_date <= DateTime.Today.AddDays(addDays))
+                .Where(x => DateTime.Today <= x.due_date && x.due_date <= DateTime.Today.AddDays(addDays))
                 .OrderByDescending(o => o.updated_ts)
             );
             return _mapper.Map<IEnumerable<BillResponse>>(bills);

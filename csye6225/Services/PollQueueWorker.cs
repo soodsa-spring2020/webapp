@@ -27,15 +27,13 @@ namespace csye6225.Services
             while (!stopToken.IsCancellationRequested)
             {
                 Console.WriteLine("Polling Queue");
-                PollQueue();
+                await PollQueue();
                 await Task.Delay(10000, stopToken);
             }
         }
 
-        private void PollQueue()
+        private async Task PollQueue()
         {
-            Task<ReceiveMessageResponse> receiveMessageResponse;
-
             using (var sqs = new AmazonSQSClient())
             {
                 const int maxMessages = 10; 
@@ -47,11 +45,11 @@ namespace csye6225.Services
                     WaitTimeSeconds = 5 
                 };
 
-                receiveMessageResponse = sqs.ReceiveMessageAsync(receiveMessageRequest);
+                var receiveMessageResponse = await sqs.ReceiveMessageAsync(receiveMessageRequest);
 
-                if (receiveMessageResponse.Result.Messages != null)
+                if (receiveMessageResponse.Messages != null)
                 {
-                    foreach (var message in receiveMessageResponse.Result.Messages)
+                    foreach (var message in receiveMessageResponse.Messages)
                     {
                         Console.WriteLine("PollQueue " + message.MessageId);
                         BackgroundWorker worker = new BackgroundWorker();
@@ -66,7 +64,7 @@ namespace csye6225.Services
             }
         }
 
-        private void ProcessMessage(Message message)
+        private async Task ProcessMessage(Message message)
         {
             Console.WriteLine("ProcessMessage " + message.Body);
 
@@ -78,18 +76,15 @@ namespace csye6225.Services
                     Message = message.Body
                 };
 
-                var response = sns.PublishAsync(publishReq);
+                await sns.PublishAsync(publishReq);
 
-                if(response.IsCompleted) {
-                    using (var sqs = new AmazonSQSClient())
-                    {
-                        var deleteRequest = new DeleteMessageRequest(_config.Value.SQS_URL, message.ReceiptHandle);
-                        sqs.DeleteMessageAsync(deleteRequest);
-                        Console.WriteLine("Processed message id: {0}", message.MessageId);
-                    }
+                using (var sqs = new AmazonSQSClient())
+                {
+                    var deleteRequest = new DeleteMessageRequest(_config.Value.SQS_URL, message.ReceiptHandle);
+                    await sqs.DeleteMessageAsync(deleteRequest);
+                    Console.WriteLine("Processed message id: {0}", message.MessageId);
                 }
             }
         }
-        
     }
 }
