@@ -72,7 +72,7 @@ namespace csye6225.Services
             {
                 PublishRequest publishReq = new PublishRequest()
                 {
-                    TargetArn = _config.Value.SNS_TOPIC_ARN,
+                    TargetArn = _config.Value.SNS_TOPIC,
                     Message = message.Body
                 };
 
