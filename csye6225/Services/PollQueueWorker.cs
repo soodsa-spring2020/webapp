@@ -27,12 +27,12 @@ namespace csye6225.Services
             while (!stopToken.IsCancellationRequested)
             {
                 Console.WriteLine("Polling Queue");
-                PollQueue();
+                await PollQueue();
                 await Task.Delay(10000, stopToken);
             }
         }
 
-        private void PollQueue()
+        private async Task PollQueue()
         {
             using (var sqs = new AmazonSQSClient())
             {
@@ -45,11 +45,11 @@ namespace csye6225.Services
                     WaitTimeSeconds = 5 
                 };
 
-                var receiveMessageResponse = sqs.ReceiveMessageAsync(receiveMessageRequest);
+                var receiveMessageResponse = await sqs.ReceiveMessageAsync(receiveMessageRequest);
 
-                if (receiveMessageResponse.Result.Messages != null)
+                if (receiveMessageResponse.Messages != null)
                 {
-                    foreach (var message in receiveMessageResponse.Result.Messages)
+                    foreach (var message in receiveMessageResponse.Messages)
                     {
                         Console.WriteLine("PollQueue " + message.MessageId);
                         BackgroundWorker worker = new BackgroundWorker();
