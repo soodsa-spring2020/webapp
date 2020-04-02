@@ -1,5 +1,6 @@
 using System.IO;
 using System.Security.Claims;
+using System.Text.Json;
 using System.Threading.Tasks;
 using Amazon.S3.Model;
 using csye6225.Models;
@@ -14,11 +15,14 @@ namespace csye6225.Controllers
     {
         private IBillService _billService;
         private IFileService _fileService;
+        private INotificationService _notificationService;
       
-        public BillController(IBillService billService, IFileService fileService) 
+        public BillController(IBillService billService, IFileService fileService,
+        INotificationService notificationService) 
         {
             _billService = billService;
             _fileService = fileService;
+            _notificationService = notificationService;
         } 
 
         [Authorize]
@@ -46,6 +50,22 @@ namespace csye6225.Controllers
             if (bills == null)
                 return BadRequest(new { message = "Network error. Bills could not be found." });
 
+            return Ok(bills);
+        }
+
+        [Authorize]
+        [Route("v1/bills/due/{days}")] 
+        [HttpGet] 
+        public async Task<IActionResult> BillsDue(string days) 
+        {    
+            var ownerId = this.User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var ownerEmail = this.User.FindFirstValue(ClaimTypes.Email);
+            var bills = await _billService.GetUserDueBills(ownerId, days);
+
+            if (bills == null)
+                return BadRequest(new { message = "Network error. Bills could not be found." });
+           
+            _notificationService.AddToNotificationQueue(ownerEmail, bills);
             return Ok(bills);
         }
 

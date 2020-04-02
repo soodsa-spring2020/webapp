@@ -53,8 +53,8 @@ namespace csye6225.Services
                     await file.CopyToAsync(fileStream);
                 }
 
-                await SendFileToS3(filePath, _config.Value.BUCKET_NAME, @"bills/" + billId, file.FileName);
-                fileObj = await GetFileObjectFromS3(_config.Value.BUCKET_NAME, @"bills/" + billId, file.FileName);
+                await SendFileToS3(filePath, _config.Value.BILL_BUCKET_NAME, @"bills/" + billId, file.FileName);
+                fileObj = await GetFileObjectFromS3(_config.Value.BILL_BUCKET_NAME, @"bills/" + billId, file.FileName);
                 
                 if(fileObj != null) {
                     string[] files = Directory.GetFiles(billsFolder);
@@ -108,7 +108,7 @@ namespace csye6225.Services
                 Directory.Delete(billsFolder);
             }
             
-            await DeleteFileFromS3(_config.Value.BUCKET_NAME, billId, fileName);
+            await DeleteFileFromS3(_config.Value.BILL_BUCKET_NAME, billId, fileName);
         }
 
         private async Task DeleteFileFromS3(string bucketName, string billId, string fileName)  

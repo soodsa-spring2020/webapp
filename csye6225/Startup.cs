@@ -48,7 +48,7 @@ namespace csye6225
             );
 
             // Add our Config object so it can be injected
-            services.Configure<Parameters>(Configuration.GetSection("S3"));
+            services.Configure<Parameters>(Configuration.GetSection("AWS"));
             services.AddMvc(options => { 
                 options.Filters.Add(typeof(ModelValidationFilterAttribute)); 
             });
@@ -71,9 +71,12 @@ namespace csye6225
             services.AddScoped<IUserService, UserService>();
             services.AddScoped<IBillService, BillService>();
             services.AddScoped<IFileService, FileService>();
+            services.AddScoped<INotificationService, NotificationService>();
 
             services.AddAWSService<IAmazonS3>();
             services.AddAWSService<IAmazonCloudWatch>();
+
+            services.AddHostedService<PollQueueWorker>();
 
         }
 
