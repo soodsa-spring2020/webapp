@@ -30,9 +30,10 @@ namespace csye6225.Services
             var sendRequest = new SendMessageRequest(); 
             var appUrl = _config.Value.APP_URL;
             sendRequest.QueueUrl = _config.Value.SQS_URL;
+            var protocol = _config.Value.PROTOCOL.ToLower();
             List<string> l = new List<string>();
             foreach(var b in bills) {
-                l.Add(string.Format("http://{0}/v1/bill/{1}", appUrl, b.id));
+                l.Add(string.Format("{0}://{1}/v1/bill/{2}", protocol, appUrl, b.id));
             }
 
             sendRequest.MessageBody = JsonSerializer.Serialize(new { email  = email, bill = string.Join(",", l) });

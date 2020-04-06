@@ -6,5 +6,6 @@ namespace csye6225.Models
         public string SQS_URL {get;set;}
         public string APP_URL {get;set;}
         public string SNS_TOPIC {get;set;}
+        public string PROTOCOL { get; set; }
     }
 }
