@@ -1,4 +1,5 @@
 using System.IO;
+using System.Linq;
 using System.Security.Claims;
 using System.Text.Json;
 using System.Threading.Tasks;
@@ -64,8 +65,10 @@ namespace csye6225.Controllers
 
             if (bills == null)
                 return BadRequest(new { message = "Network error. Bills could not be found." });
-           
-            _notificationService.AddToNotificationQueue(ownerEmail, bills);
+
+            if(bills.Count() > 0) {
+                _notificationService.AddToNotificationQueue(ownerEmail, bills);
+            }
             return Ok(bills);
         }
 
