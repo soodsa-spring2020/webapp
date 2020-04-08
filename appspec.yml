@@ -14,7 +14,6 @@ hooks:
     - location: scripts/beforeinstall.sh
       timeout: 180
       runas: root
-  AfterInstall:
     - location: scripts/restoretools.sh
       timeout: 180
       runas: root
